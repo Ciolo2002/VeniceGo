@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -49,11 +43,23 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBvOCyO4M2x4saDAwZiTy3FKxZ6-KZ2Wl0',
+    appId: '1:195053807922:web:f12548bf577c1accc78f2b',
+    messagingSenderId: '195053807922',
+    projectId: 'venicego-app',
+    authDomain: 'venicego-app.firebaseapp.com',
+    databaseURL: 'https://venicego-app-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'venicego-app.appspot.com',
+    measurementId: 'G-NSQDR7EFNY',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC0g4P0T8ytXo3T6AI-uEUOCxNPWimEAts',
     appId: '1:195053807922:android:ada27c2cd163918ec78f2b',
     messagingSenderId: '195053807922',
     projectId: 'venicego-app',
+    databaseURL: 'https://venicego-app-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'venicego-app.appspot.com',
   );
 
@@ -62,7 +68,18 @@ class DefaultFirebaseOptions {
     appId: '1:195053807922:ios:b9c8bcc2da0a1718c78f2b',
     messagingSenderId: '195053807922',
     projectId: 'venicego-app',
+    databaseURL: 'https://venicego-app-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'venicego-app.appspot.com',
     iosBundleId: 'unive.it.veniceGo',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCLA4ZUtNt-OTqeyvzEIXMyTg1kAI8Nn04',
+    appId: '1:195053807922:ios:c7dadde0e4d069c8c78f2b',
+    messagingSenderId: '195053807922',
+    projectId: 'venicego-app',
+    databaseURL: 'https://venicego-app-default-rtdb.europe-west1.firebasedatabase.app',
+    storageBucket: 'venicego-app.appspot.com',
+    iosBundleId: 'unive.it.veniceGo.RunnerTests',
   );
 }

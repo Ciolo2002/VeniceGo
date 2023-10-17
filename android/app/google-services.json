@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "195053807922",
+    "firebase_url": "https://venicego-app-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "venicego-app",
     "storage_bucket": "venicego-app.appspot.com"
   },
