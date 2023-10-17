@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "195053807922",
+    "project_id": "venicego-app",
+    "storage_bucket": "venicego-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195053807922:android:ada27c2cd163918ec78f2b",
+        "android_client_info": {
+          "package_name": "unive.it.venice_go"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0g4P0T8ytXo3T6AI-uEUOCxNPWimEAts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
