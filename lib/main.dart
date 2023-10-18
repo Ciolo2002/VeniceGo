@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
+  // Example usage of dotenv
+  print("Firebase URL: " + dotenv.env['FIREBASE_URL']);
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -66,7 +70,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-
   void _incrementCounter() {
     // This call to setState tells the Flutter framework that something has
     // changed in this State, which causes it to rerun the build method below
@@ -80,12 +83,10 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         ref.set({'test': _counter});
       } catch (e) {
-        print('Errore durante ila salvataggio nel database: $e');
+        print('Errore durante il salvataggio nel database: $e');
       }
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
