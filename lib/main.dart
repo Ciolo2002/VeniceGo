@@ -3,8 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -66,7 +64,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-
   void _incrementCounter() {
     // This call to setState tells the Flutter framework that something has
     // changed in this State, which causes it to rerun the build method below
@@ -80,12 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         ref.set({'test': _counter});
       } catch (e) {
-        print('Errore durante ila salvataggio nel database: $e');
+        print('Errore durante il salvataggio nel database: $e');
       }
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
