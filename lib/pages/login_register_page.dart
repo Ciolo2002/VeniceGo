@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../auth.dart';
@@ -14,8 +15,12 @@ class _LoginPageState extends State<LoginPage>{
   String? errorMessage = '';
   bool isLogin = true;
 
+  final TextEditingController _controllerName = TextEditingController();
+  final TextEditingController _controllerSurname = TextEditingController();
   final TextEditingController _controllerEmail = TextEditingController();
+  // TODO: fare password coi pallini
   final TextEditingController _controllerPassword = TextEditingController();
+  final TextEditingController _controllerPasswordConfirm = TextEditingController();
 
   Future<void> _signInWithEmailAndPassword() async {
     try {
@@ -32,10 +37,26 @@ class _LoginPageState extends State<LoginPage>{
 
   Future<void> _createUserWithEmailAndPassword() async {
     try {
-      await Auth().createUSerWithEmailAndPassword(
-        email: _controllerEmail.text,
-        password: _controllerPassword.text,
-      );
+      final newUser =
+        await Auth().createUSerWithEmailAndPassword(
+          email: _controllerEmail.text,
+          password: _controllerPassword.text,
+        );
+
+      String userId = newUser.user.uid; // dovrebbe andare bene TODO: modificare auth.dart
+
+      // TODO: fare eccezioni personalizzate se l'inserimento nel realtime db fallisce
+      DatabaseReference ref = FirebaseDatabase.instance.ref().child("users");
+      //DatabaseReference newUserRef = ref.push();
+
+      // TODO: inserire l'utente con un ID personalizzato, magari quello di firebase auth
+      // vedi https://stackoverflow.com/questions/62919410/get-user-uid-after-user-registering
+      //await newUserRef.set({
+      await ref.child(userId).set({
+          "Name": _controllerName.text,
+          "Surname": _controllerSurname.text,
+      });
+
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = e.message;
@@ -44,7 +65,7 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   Widget _title(){
-    return const Text('Firebase Auth');
+    return const Text('Firebase Auth'); // TODO: rendere diverso per login e registrazione
   }
 
   Widget _entryField( String title, TextEditingController controller){
@@ -74,6 +95,7 @@ class _LoginPageState extends State<LoginPage>{
       onPressed: (){
         setState(() {
           isLogin = !isLogin;
+          errorMessage = '';
         });
       },
       child: Text(isLogin ? 'Register Instead' : 'Login Instead'),
@@ -82,6 +104,10 @@ class _LoginPageState extends State<LoginPage>{
 
   @override
   Widget build(BuildContext context){
+    return isLogin ? _buildSignIn() : _buildRegister();
+  }
+
+  Widget _buildRegister(){
     return Scaffold(
       appBar: AppBar(
         title: _title(),
@@ -91,15 +117,42 @@ class _LoginPageState extends State<LoginPage>{
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _entryField('Email', _controllerEmail),
-            _entryField('Password', _controllerPassword),
-            _errorMessage(),
-            _submitButton(),
-            _loginOrRegisterButton(),
-          ]
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _entryField('Name', _controllerName),
+              _entryField('Surname', _controllerSurname),
+              _entryField('Email', _controllerEmail),
+              _entryField('Password', _controllerPassword),
+              _entryField('Confirm Password', _controllerPasswordConfirm),
+              _errorMessage(),
+              _submitButton(),
+              _loginOrRegisterButton(),
+            ]
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignIn(){
+    return Scaffold(
+      appBar: AppBar(
+        title: _title(),
+      ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _entryField('Email', _controllerEmail),
+              _entryField('Password', _controllerPassword),
+              _errorMessage(),
+              _submitButton(),
+              _loginOrRegisterButton(),
+            ]
         ),
       ),
     );
