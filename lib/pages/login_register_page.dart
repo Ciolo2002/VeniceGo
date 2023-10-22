@@ -17,6 +17,7 @@ class _LoginPageState extends State<LoginPage>{
 
   final TextEditingController _controllerName = TextEditingController();
   final TextEditingController _controllerSurname = TextEditingController();
+
   final TextEditingController _controllerEmail = TextEditingController();
   // TODO: fare password coi pallini
   final TextEditingController _controllerPassword = TextEditingController();
@@ -43,15 +44,13 @@ class _LoginPageState extends State<LoginPage>{
           password: _controllerPassword.text,
         );
 
-      String userId = newUser.user.uid; // dovrebbe andare bene TODO: modificare auth.dart
+      String userId = newUser.user!.uid;
 
       // TODO: fare eccezioni personalizzate se l'inserimento nel realtime db fallisce
       DatabaseReference ref = FirebaseDatabase.instance.ref().child("users");
       //DatabaseReference newUserRef = ref.push();
 
-      // TODO: inserire l'utente con un ID personalizzato, magari quello di firebase auth
-      // vedi https://stackoverflow.com/questions/62919410/get-user-uid-after-user-registering
-      //await newUserRef.set({
+      // carico l'utente nel db realtime con l'Id di firebase Auth
       await ref.child(userId).set({
           "Name": _controllerName.text,
           "Surname": _controllerSurname.text,
@@ -65,7 +64,7 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   Widget _title(){
-    return const Text('Firebase Auth'); // TODO: rendere diverso per login e registrazione
+    return isLogin ? const Text('Login'): const Text('Registrazione');
   }
 
   Widget _entryField( String title, TextEditingController controller){
