@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venice_go/main.dart';
 import '../auth.dart';
 
 class LoginPage extends StatefulWidget{
@@ -24,7 +25,36 @@ class _LoginPageState extends State<LoginPage>{
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerPasswordConfirm = TextEditingController();
 
+  bool _hasValue(String name, TextEditingController cont){
+    if(cont.text.isEmpty){
+      setState(() {
+        errorMessage=_formatExceptionMessage("$name is required");
+      });
+      return false;
+    }
+    return true;
+  }
+
+  bool _checkMapRequired(Map<String ,TextEditingController>requiredF){
+    for (final fieldName in requiredF.keys) {
+      if ( !_hasValue(fieldName, requiredF[fieldName]!)) {
+        return false; // Interrompi la funzione se uno dei campi richiesti è vuoto
+      }
+    }
+    return true;
+  }
+
+  String _formatExceptionMessage(String val){
+    return val.replaceAll('_', ' ').replaceAll('-', ' ').capitalize();
+  }
+
+
   Future<void> _signInWithEmailAndPassword() async {
+    Map<String, TextEditingController> requiredF={'email': _controllerEmail,'password': _controllerPassword};
+    if(!_checkMapRequired(requiredF)){
+      return;
+    }
+
     try {
       await Auth().signInWithEmailAndPassword(
         email: _controllerEmail.text,
@@ -32,18 +62,24 @@ class _LoginPageState extends State<LoginPage>{
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message;
+        errorMessage = _formatExceptionMessage(e.code);
       });
     }
   }
 
 
+
   Future<void> _createUserWithEmailAndPassword() async {
+    Map<String, TextEditingController> requiredF={'name':_controllerName, 'surname':_controllerSurname,'email': _controllerEmail,'password': _controllerPassword, 'password_confirm': _controllerPasswordConfirm};
+    if(!_checkMapRequired(requiredF)){
+        return;
+    }
     if (_controllerPassword.text!=_controllerPasswordConfirm.text){
       return setState(() {
         errorMessage = "Password does not match";
       });
     }
+
     try {
       final newUser =
         await Auth().createUSerWithEmailAndPassword(
@@ -53,7 +89,6 @@ class _LoginPageState extends State<LoginPage>{
 
       String userId = newUser.user!.uid;
 
-      // TODO: fare eccezioni personalizzate se l'inserimento nel realtime db fallisce
       DatabaseReference ref = FirebaseDatabase.instance.ref().child("users");
       //DatabaseReference newUserRef = ref.push();
 
@@ -65,7 +100,7 @@ class _LoginPageState extends State<LoginPage>{
 
     } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message;
+        errorMessage = _formatExceptionMessage(e.code);
       });
     }
   }
@@ -129,6 +164,8 @@ class _LoginPageState extends State<LoginPage>{
       child: Text(isLogin ? 'Register Instead' : 'Login Instead'),
     );
   }
+
+
 
   @override
   Widget build(BuildContext context){
