@@ -37,10 +37,11 @@ class _LoginPageState extends State<LoginPage>{
     }
   }
 
+
   Future<void> _createUserWithEmailAndPassword() async {
     if (_controllerPassword.text!=_controllerPasswordConfirm.text){
       return setState(() {
-        errorMessage = "Passwords does not match";
+        errorMessage = "Password does not match";
       });
     }
     try {
@@ -79,6 +80,11 @@ class _LoginPageState extends State<LoginPage>{
     return TextField(
       controller: controller,
       obscureText: isPassword && !isPasswordVisible,
+      onChanged:(String value){
+        setState(() {
+          errorMessage='';
+        });
+      },
       decoration: InputDecoration(
         labelText: title,
         suffixIcon: isPassword ? IconButton(
