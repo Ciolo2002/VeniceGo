@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,7 +21,6 @@ class _LoginPageState extends State<LoginPage>{
   final TextEditingController _controllerSurname = TextEditingController();
 
   final TextEditingController _controllerEmail = TextEditingController();
-  // TODO: fare password coi pallini
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerPasswordConfirm = TextEditingController();
 
@@ -67,11 +68,28 @@ class _LoginPageState extends State<LoginPage>{
     return isLogin ? const Text('Login'): const Text('Registrazione');
   }
 
-  Widget _entryField( String title, TextEditingController controller){
+  bool isPasswordVisible = false;
+
+  Widget _entryField( String title, TextEditingController controller, {bool isPassword=false}){
     return TextField(
       controller: controller,
+      obscureText: isPassword && !isPasswordVisible,
       decoration: InputDecoration(
         labelText: title,
+        suffixIcon: isPassword ? IconButton(
+          icon: Icon(
+            // Based on isPasswordVisible state choose the icon
+            isPasswordVisible
+                ? Icons.visibility
+                : Icons.visibility_off,
+            color: Theme.of(context).primaryColorDark,
+          ),
+          onPressed: () {
+            // Update the state i.e. toogle the state of isPasswordVisible variable
+            setState(() {
+              isPasswordVisible = !isPasswordVisible;
+            });
+          }) : null,
       ),
     );
   }
@@ -122,8 +140,8 @@ class _LoginPageState extends State<LoginPage>{
               _entryField('Name', _controllerName),
               _entryField('Surname', _controllerSurname),
               _entryField('Email', _controllerEmail),
-              _entryField('Password', _controllerPassword),
-              _entryField('Confirm Password', _controllerPasswordConfirm),
+              _entryField('Password', _controllerPassword, isPassword: true),
+              _entryField('Confirm Password', _controllerPasswordConfirm,isPassword: true),
               _errorMessage(),
               _submitButton(),
               _loginOrRegisterButton(),
@@ -147,7 +165,7 @@ class _LoginPageState extends State<LoginPage>{
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               _entryField('Email', _controllerEmail),
-              _entryField('Password', _controllerPassword),
+              _entryField('Password', _controllerPassword, isPassword: true),
               _errorMessage(),
               _submitButton(),
               _loginOrRegisterButton(),
