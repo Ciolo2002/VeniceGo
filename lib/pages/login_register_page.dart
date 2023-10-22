@@ -38,6 +38,11 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   Future<void> _createUserWithEmailAndPassword() async {
+    if (_controllerPassword.text!=_controllerPasswordConfirm.text){
+      return setState(() {
+        errorMessage = "Passwords does not match";
+      });
+    }
     try {
       final newUser =
         await Auth().createUSerWithEmailAndPassword(
