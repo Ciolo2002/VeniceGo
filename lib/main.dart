@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+
+
 Future<void> main() async {
   // fondamentali per il funzionamento di Firebase
   WidgetsFlutterBinding.ensureInitialized();

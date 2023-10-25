@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:venice_go/navigation_bar.dart';
+import 'package:venice_go/navigation_bar.dart';
 
 import '../auth.dart';
 
@@ -24,10 +26,12 @@ class HomePage extends StatelessWidget {
     return ElevatedButton(
       // chiamo il metodo signOut() quando l'utente preme il bottone
       onPressed: signOut,
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.indigo,
+      ),
       child: const Text('Sign Out'),
     );
   }
-
 
 
   @override
@@ -50,6 +54,50 @@ class HomePage extends StatelessWidget {
           ]
         ),
       ),
+      bottomNavigationBar:
+      Theme(
+        data: Theme.of(context).copyWith(
+          navigationBarTheme: NavigationBarThemeData(
+            backgroundColor: Colors.blue, // Customize the background color
+            indicatorColor: Colors.indigo, // Customize the color of the selected tab indicator
+            // Add more customizations here
+            labelTextStyle: MaterialStateProperty.all(const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
+            iconTheme: MaterialStateProperty.all(const IconThemeData(color: Colors.white)),
+          ),
+      ), child: MyNavigationBar(
+        // provare a togliere dovrebbe andare il colore di main.dart
+
+        onItemTap: (int tappedIndex) {
+          print('Tapped $tappedIndex');
+        },
+
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+
+        // provvisorie, non fanno nulla, da cambiare
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            selectedIcon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark),
+            selectedIcon: Icon(Icons.bookmark),
+            label: 'Saved',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            selectedIcon: Icon(Icons.account_circle),
+            label: 'Account',
+          ),
+        ],
+      ),
+    )
     );
   }
 
