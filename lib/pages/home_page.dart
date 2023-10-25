@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/navigation_bar.dart';
+import 'package:venice_go/pages/login_register_page.dart';
 
 import '../auth.dart';
 
@@ -22,8 +23,13 @@ class HomePage extends StatelessWidget {
     return Text(user?.email ?? 'User email');
   }
 
+  int _selectedIndex = 0;
+  final List<Widget> _pages = [
+    const LoginPage(),
+  ];
+
   Widget _signOutButton() {
-    return ElevatedButton(
+    return    ElevatedButton(
       // chiamo il metodo signOut() quando l'utente preme il bottone
       onPressed: signOut,
       style: TextButton.styleFrom(
@@ -48,10 +54,10 @@ class HomePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: Auth().currentUser!=null && Auth().currentUser!.emailVerified ? <Widget>[
             _userUid(),
             _signOutButton(),
-          ]
+          ]: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
         ),
       ),
       bottomNavigationBar:
@@ -66,10 +72,11 @@ class HomePage extends StatelessWidget {
           ),
       ), child: MyNavigationBar(
         // provare a togliere dovrebbe andare il colore di main.dart
-
         onItemTap: (int tappedIndex) {
           print('Tapped $tappedIndex');
         },
+        // Change page tap page number
+
 
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
 
@@ -94,6 +101,7 @@ class HomePage extends StatelessWidget {
             icon: Icon(Icons.account_circle),
             selectedIcon: Icon(Icons.account_circle),
             label: 'Account',
+              // Within the `FirstRoute` widget
           ),
         ],
       ),
