@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/pages/login_register_page.dart';
+import 'package:venice_go/pages/verify_email_page.dart';
 
 import '../auth.dart';
 
@@ -42,26 +43,27 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _title(),
-      ),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        alignment: Alignment.center,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: Auth().currentUser!=null && Auth().currentUser!.emailVerified ? <Widget>[
-            _userUid(),
-            _signOutButton(),
-          ]: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
-        ),
-      ),
-      bottomNavigationBar:
-      Theme(
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+              title: _title(),
+            ),
+            body: Container(
+              height: double.infinity,
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              alignment: Alignment.center,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: /*Auth().currentUser!=null && Auth().currentUser!.emailVerified ? */<Widget>[
+                    _userUid(),
+                    _signOutButton(),
+                  ]//: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
+              ),
+            ),
+            bottomNavigationBar:
+            /*Theme(
         data: Theme.of(context).copyWith(
           navigationBarTheme: NavigationBarThemeData(
             backgroundColor: Colors.blue, // Customize the background color
@@ -70,43 +72,19 @@ class HomePage extends StatelessWidget {
             labelTextStyle: MaterialStateProperty.all(const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
             iconTheme: MaterialStateProperty.all(const IconThemeData(color: Colors.white)),
           ),
-      ), child: MyNavigationBar(
-        // provare a togliere dovrebbe andare il colore di main.dart
-        onItemTap: (int tappedIndex) {
-          print('Tapped $tappedIndex');
-        },
-        // Change page tap page number
+      ), child: */const MyNavigationBar(
+              selectedIndex: 0,
+              onDestinationSelected: (int index) {
+                _selectedIndex = index;
+                //Navigator.of(context).push(MaterialPageRoute(builder: (context) => _pages[index]));
+              },
+            )//
+            )
+          //),
 
-
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-
-        // provvisorie, non fanno nulla, da cambiare
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            selectedIcon: Icon(Icons.home),
-            label: 'Dashboard',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bookmark),
-            selectedIcon: Icon(Icons.bookmark),
-            label: 'Saved',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle),
-            selectedIcon: Icon(Icons.account_circle),
-            label: 'Account',
-              // Within the `FirstRoute` widget
-          ),
-        ],
-      ),
-    )
+        )
     );
+
   }
 
 }

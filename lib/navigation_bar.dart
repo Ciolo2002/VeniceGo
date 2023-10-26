@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:venice_go/pages/login_register_page.dart';
 
 
 
 class MyNavigationBar extends StatefulWidget {
-  final List<NavigationDestination> destinations;
-  final NavigationDestinationLabelBehavior? labelBehavior;
   final int selectedIndex;
-  final void Function(int index) onItemTap;
   final Color? backgroundColor;
+  final void Function(int) onDestinationSelected;
 
   const MyNavigationBar({
     Key? key,
-    required this.onItemTap,
-    required this.destinations,
     this.selectedIndex = 0,
     this.backgroundColor,
-    this.labelBehavior,
+    required this.onDestinationSelected,
   }) : super(key: key);
 
   @override
@@ -34,18 +31,35 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      labelBehavior: widget.labelBehavior,
-      selectedIndex: _selectedIndex,
-      onDestinationSelected: (int tappedIndex) {
-        setState(() {
-          _selectedIndex = tappedIndex;
-        });
 
-        //widget.onItemTap(tappedIndex);
-      },
+    return NavigationBar(
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: widget.onDestinationSelected,
       animationDuration: const Duration(milliseconds: 1500),
-      destinations: widget.destinations,
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.home),
+          selectedIcon: Icon(Icons.home),
+          label: 'Dashboard',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.search),
+          selectedIcon: Icon(Icons.search),
+          label: 'Search',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.bookmark),
+          selectedIcon: Icon(Icons.bookmark),
+          label: 'Saved',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.account_circle),
+          selectedIcon: Icon(Icons.account_circle),
+          label: 'Account',
+          // Within the `FirstRoute` widget
+        ),
+      ]
     );
   }
 }
