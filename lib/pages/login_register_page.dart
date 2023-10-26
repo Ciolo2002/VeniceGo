@@ -196,9 +196,6 @@ class _LoginPageState extends State<LoginPage>{
   */
   Widget _buildRegister(){
     return Scaffold(
-      appBar: AppBar(
-        title: _title(),
-      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,
@@ -223,9 +220,6 @@ class _LoginPageState extends State<LoginPage>{
 
   Widget _buildSignIn(){
     return Scaffold(
-      appBar: AppBar(
-        title: _title(),
-      ),
       body: Container(
         height: double.infinity,
         width: double.infinity,

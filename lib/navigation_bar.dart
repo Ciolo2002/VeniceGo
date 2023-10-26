@@ -34,7 +34,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
 
     return NavigationBar(
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      selectedIndex: _selectedIndex,
+      selectedIndex: widget.selectedIndex,
       onDestinationSelected: widget.onDestinationSelected,
       animationDuration: const Duration(milliseconds: 1500),
       destinations: const [

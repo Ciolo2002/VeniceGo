@@ -73,9 +73,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       isEmailVerified ?
       HomePage()
       : Scaffold(
-          appBar: AppBar(
-            title: const Text('Verify Email'),
-          ),
           body: Padding(
             padding: EdgeInsets.all(16),
             child: Column(

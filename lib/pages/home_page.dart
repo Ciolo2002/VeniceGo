@@ -44,9 +44,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
-              title: _title(),
-            ),
             body: Container(
               height: double.infinity,
               width: double.infinity,
