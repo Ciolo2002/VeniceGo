@@ -43,8 +43,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
+    return Scaffold(
             appBar: AppBar(
               title: _title(),
             ),
@@ -62,29 +61,8 @@ class HomePage extends StatelessWidget {
                   ]//: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
               ),
             ),
-            bottomNavigationBar:
-            /*Theme(
-        data: Theme.of(context).copyWith(
-          navigationBarTheme: NavigationBarThemeData(
-            backgroundColor: Colors.blue, // Customize the background color
-            indicatorColor: Colors.indigo, // Customize the color of the selected tab indicator
-            // Add more customizations here
-            labelTextStyle: MaterialStateProperty.all(const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold)),
-            iconTheme: MaterialStateProperty.all(const IconThemeData(color: Colors.white)),
-          ),
-      ), child: */const MyNavigationBar(
-              selectedIndex: 0,
-              onDestinationSelected: (int index) {
-                _selectedIndex = index;
-                //Navigator.of(context).push(MaterialPageRoute(builder: (context) => _pages[index]));
-              },
-            )//
-            )
-          //),
 
-        )
     );
-
   }
 
 }
