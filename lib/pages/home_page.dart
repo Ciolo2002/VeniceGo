@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/navigation_bar.dart';
@@ -7,27 +8,37 @@ import 'package:venice_go/pages/verify_email_page.dart';
 
 import '../auth.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+
+}
+
+class _HomePageState extends State<HomePage> {
+
+
+  late final String _userName;
+  late final String _userSurname;
   final User? user = Auth().currentUser;
 
   Future<void> signOut() async {
     await Auth().signOut();
   }
 
-  Widget _title(){
-    return const Text('Firebase Auth');
-  }
-
-  Widget _userUid(){
+  Widget _userInfo(){
+    fetchUserData();
+    String userEmail = user?.email ?? 'User email';
+    return Column(
+      children: [
+        Text("Name: $_userName"),
+        Text("Surname: $_userSurname"),
+        Text("Email: $userEmail")
+      ],
+    );
     return Text(user?.email ?? 'User email');
   }
-
-  int _selectedIndex = 0;
-  final List<Widget> _pages = [
-    const LoginPage(),
-  ];
 
   Widget _signOutButton() {
     return    ElevatedButton(
@@ -40,26 +51,44 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  Future<void> fetchUserData() async {
+    final userId = Auth().currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref('users/$userId');
+
+    DatabaseEvent event = await ref.once();
+
+    //TODO:  OTTENERE I DATI DELL'UTENTE DAL DB
+    if (event.snapshot.value != null) {
+      final data = event.snapshot.value as Map;
+      setState(() {
+        _userName = data['Name'];
+        _userSurname = data['Surname'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            body: Container(
-              height: double.infinity,
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              alignment: Alignment.center,
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: /*Auth().currentUser!=null && Auth().currentUser!.emailVerified ? */<Widget>[
-                    _userUid(),
-                    _signOutButton(),
-                  ]//: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
-              ),
-            ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        alignment: Alignment.center,
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: /*Auth().currentUser!=null && Auth().currentUser!.emailVerified ? */<Widget>[
+              _userInfo(),
+              _signOutButton(),
+              /**/
+            ]//: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
+        ),
+
+      ),
 
     );
   }
-
 }
+
+

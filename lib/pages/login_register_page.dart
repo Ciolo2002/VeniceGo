@@ -85,7 +85,7 @@ class _LoginPageState extends State<LoginPage>{
       await ref.child(userId).set({
           "Name": _controllerName.text,
           "Surname": _controllerSurname.text,
-          "Email": _controllerEmail,
+          "Email": _controllerEmail.text,
       });
 
     } on FirebaseAuthException catch (e) {
