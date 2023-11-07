@@ -27,19 +27,6 @@ class _HomePageState extends State<HomePage> {
     await Auth().signOut();
   }
 
-  Widget _userInfo(){
-    fetchUserData();
-    String userEmail = user?.email ?? 'User email';
-    return Column(
-      children: [
-        Text("Name: $_userName"),
-        Text("Surname: $_userSurname"),
-        Text("Email: $userEmail")
-      ],
-    );
-    return Text(user?.email ?? 'User email');
-  }
-
   Widget _signOutButton() {
     return    ElevatedButton(
       // chiamo il metodo signOut() quando l'utente preme il bottone
@@ -57,7 +44,6 @@ class _HomePageState extends State<HomePage> {
 
     DatabaseEvent event = await ref.once();
 
-    //TODO:  OTTENERE I DATI DELL'UTENTE DAL DB
     if (event.snapshot.value != null) {
       final data = event.snapshot.value as Map;
       setState(() {
@@ -65,6 +51,18 @@ class _HomePageState extends State<HomePage> {
         _userSurname = data['Surname'];
       });
     }
+  }
+
+  Widget _userInfo(){
+    fetchUserData();
+    String userEmail = user?.email ?? 'User email';
+    return Column(
+      children: [
+        Text("Name: $_userName"),
+        Text("Surname: $_userSurname"),
+        Text("Email: $userEmail")
+      ],
+    );
   }
 
   @override
@@ -78,11 +76,11 @@ class _HomePageState extends State<HomePage> {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: /*Auth().currentUser!=null && Auth().currentUser!.emailVerified ? */<Widget>[
+            children: Auth().currentUser!=null && Auth().currentUser!.emailVerified ? <Widget>[
               _userInfo(),
               _signOutButton(),
               /**/
-            ]//: []// TODO TOGLIERE DALLA HOME PAGE E METTERLO NELLA PAGINA UTENTE
+            ]:[]
         ),
 
       ),
