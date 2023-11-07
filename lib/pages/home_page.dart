@@ -38,6 +38,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _circleAvatar(){
+    return const CircleAvatar(
+      radius: 80,
+      backgroundColor: Colors.black,
+        child: CircleAvatar(
+            radius: 75,
+            backgroundImage: AssetImage(
+                'assets/images/cafoscari.jpg'
+            ),
+            backgroundColor: Colors.white
+        )
+    );
+  }
+
   Future<void> fetchUserData() async {
     final userId = Auth().currentUser!.uid;
     final ref = FirebaseDatabase.instance.ref('users/$userId');
@@ -77,9 +91,9 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: Auth().currentUser!=null && Auth().currentUser!.emailVerified ? <Widget>[
+              _circleAvatar(),
               _userInfo(),
               _signOutButton(),
-              /**/
             ]:[]
         ),
 
