@@ -1,5 +1,6 @@
 import 'package:venice_go/navigation_bar.dart';
 
+import 'download.dart';
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,6 +42,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    Navigation a = Navigation();
+    a.download();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -97,6 +100,6 @@ class _MyAppState extends State<MyApp> {
 
 extension StringExtension on String {
   String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
