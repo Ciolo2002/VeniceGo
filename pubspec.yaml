@@ -40,6 +40,7 @@ dependencies:
   firebase_auth: ^4.11.0
   material: ^1.0.0+2
   file_picker: ^6.1.1
+  google_maps_flutter: ^2.5.0
 
 dev_dependencies:
   flutter_test:

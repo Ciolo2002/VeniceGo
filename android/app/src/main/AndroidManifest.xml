@@ -3,6 +3,10 @@
         android:label="venice_go"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+                   android:value="AIzaSyDFdHfwEJu1nt3F2aWkni1Hu8Zert0cbFA"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

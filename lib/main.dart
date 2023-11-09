@@ -1,4 +1,5 @@
 import 'package:venice_go/navigation_bar.dart';
+import 'package:venice_go/pages/google_maps.dart';
 
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,7 @@ class _MyAppState extends State<MyApp> {
                   });
                 },
                 children: const [
-                  Text('Home'),
+                  GoogleMaps(),
                   Text('Search'),
                   Text('Saved'),
                   WidgetTree(),
