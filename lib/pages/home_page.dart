@@ -1,6 +1,8 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/pages/login_register_page.dart';
@@ -13,22 +15,20 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
-
 }
 
 class _HomePageState extends State<HomePage> {
-
-
   late final String _userName;
   late final String _userSurname;
   final User? user = Auth().currentUser;
+  PlatformFile? pickedFile;
 
   Future<void> signOut() async {
     await Auth().signOut();
   }
 
   Widget _signOutButton() {
-    return    ElevatedButton(
+    return ElevatedButton(
       // chiamo il metodo signOut() quando l'utente preme il bottone
       onPressed: signOut,
       style: TextButton.styleFrom(
@@ -38,17 +38,57 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _circleAvatar(){
-    return const CircleAvatar(
-      radius: 80,
-      backgroundColor: Colors.black,
-        child: CircleAvatar(
-            radius: 75,
-            backgroundImage: AssetImage(
-                'assets/images/cafoscari.jpg'
-            ),
-            backgroundColor: Colors.white
+  Widget _circleAvatar() {
+    if (pickedFile != null) {
+      return CircleAvatar(
+        radius: 80,
+        backgroundColor: Colors.black,
+        child: ClipOval(
+          child: SizedBox(
+            width: 150, // Imposta la larghezza desiderata per l'immagine
+            height: 150, // Imposta l'altezza desiderata per l'immagine
+            child: Image.file(File(pickedFile!.path!), fit: BoxFit.cover),
+          ),
+        ),
+      );
+    } else {
+      return const CircleAvatar(
+          radius: 80,
+          backgroundColor: Colors.black,
+          child: CircleAvatar(
+              radius: 75,
+              backgroundImage: AssetImage('assets/images/cafoscari.jpg'),
+              backgroundColor: Colors.white
+          )
+      );
+    }
+  }
+
+  Future selectFile() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result == null) return;
+
+    setState(() {
+      // pickedFile è un campo
+      pickedFile = result.files.first;
+    });
+  }
+
+  Widget _profileImage() {
+    return Column(
+      children: [
+        _circleAvatar(),
+        Row(
+          children: [
+            ElevatedButton(
+                onPressed: selectFile,
+                child: const Icon(Icons.add_a_photo_outlined)),
+            ElevatedButton(
+                onPressed: selectFile,
+                child: const Icon(Icons.cloud_upload_outlined)),
+          ],
         )
+      ],
     );
   }
 
@@ -67,7 +107,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _userInfo(){
+  Widget _userInfo() {
     fetchUserData();
     String userEmail = user?.email ?? 'User email';
     return Column(
@@ -90,17 +130,15 @@ class _HomePageState extends State<HomePage> {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: Auth().currentUser!=null && Auth().currentUser!.emailVerified ? <Widget>[
-              _circleAvatar(),
-              _userInfo(),
-              _signOutButton(),
-            ]:[]
-        ),
-
+            children:
+                Auth().currentUser != null && Auth().currentUser!.emailVerified
+                    ? <Widget>[
+                        _circleAvatar(),
+                        _userInfo(),
+                        _signOutButton(),
+                      ]
+                    : []),
       ),
-
     );
   }
 }
-
-
