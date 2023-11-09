@@ -1,12 +1,9 @@
+//import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
-import 'package:venice_go/navigation_bar.dart';
-import 'package:venice_go/navigation_bar.dart';
-import 'package:venice_go/pages/login_register_page.dart';
-import 'package:venice_go/pages/verify_email_page.dart';
 
 import '../auth.dart';
 
@@ -64,6 +61,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles();
     if (result == null) return;
@@ -91,6 +89,7 @@ class _HomePageState extends State<HomePage> {
       ],
     );
   }
+
 
   Future<void> fetchUserData() async {
     final userId = Auth().currentUser!.uid;
@@ -133,7 +132,7 @@ class _HomePageState extends State<HomePage> {
             children:
                 Auth().currentUser != null && Auth().currentUser!.emailVerified
                     ? <Widget>[
-                        _circleAvatar(),
+                        _profileImage(),
                         _userInfo(),
                         _signOutButton(),
                       ]
