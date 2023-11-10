@@ -43,6 +43,7 @@ dependencies:
   google_maps_flutter: ^2.5.0
   http: ^1.1.0
   json_serializable: ^6.7.1
+  firebase_storage: ^11.5.0
 
 dev_dependencies:
   flutter_test:

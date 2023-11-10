@@ -1,6 +1,7 @@
 //import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
@@ -17,8 +18,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late final String _userName;
   late final String _userSurname;
+  late String _userPhoto = '';
   final User? user = Auth().currentUser;
+
+  // campi per l'upload dei file
   PlatformFile? pickedFile;
+  UploadTask? uploadTask;
 
   Future<void> signOut() async {
     await Auth().signOut();
@@ -49,15 +54,27 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     } else {
-      return const CircleAvatar(
-          radius: 80,
-          backgroundColor: Colors.black,
-          child: CircleAvatar(
-              radius: 75,
-              backgroundImage: AssetImage('assets/images/cafoscari.jpg'),
-              backgroundColor: Colors.white
-          )
-      );
+      if(_userPhoto != ''){
+        return CircleAvatar(
+            radius: 80,
+            backgroundColor: Colors.black,
+            child: CircleAvatar(
+                radius: 75,
+                backgroundImage: NetworkImage(_userPhoto),
+                backgroundColor: Colors.white
+            )
+        );
+      }else{
+        return const CircleAvatar(
+            radius: 80,
+            backgroundColor: Colors.black,
+            child: CircleAvatar(
+                radius: 75,
+                backgroundImage: AssetImage('assets/images/cafoscari.jpg'),
+                backgroundColor: Colors.white
+            )
+        );
+      }
     }
   }
 
@@ -72,24 +89,102 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future uploadFile() async{
+    final path = 'files/${pickedFile!.name}';
+    final file = File(pickedFile!.path!);
+
+    final ref = FirebaseStorage.instance.ref().child(path);
+    setState(() {
+      uploadTask = ref.putFile(file);
+    });
+
+    final snapshot = await uploadTask!.whenComplete(() {});
+
+    final urlDownload = await snapshot.ref.getDownloadURL();
+    print('Download-Link: $urlDownload');
+
+    DatabaseReference ref2 = FirebaseDatabase.instance.ref().child("users");
+
+    String userId = Auth().currentUser!.uid;
+
+    await ref2.child(userId).update({
+      "ProfileImage": urlDownload,
+    });
+
+    setState(() {
+      pickedFile = null;
+    });
+  }
+
+  Widget buildProgress() => StreamBuilder<TaskSnapshot>(
+    stream: uploadTask?.snapshotEvents,
+    builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        final data = snapshot.data!;
+        double progress = data.bytesTransferred / data.totalBytes;
+
+        return SizedBox(
+          height: 50,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              LinearProgressIndicator(
+                  value: progress,
+                  backgroundColor: Colors.grey,
+                  color: Colors.green
+              ),
+              Center(
+                child: Text(
+                  '${(progress * 100).roundToDouble()} %',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              )
+            ]
+          ),
+        );
+
+      } else {
+        return const SizedBox(height: 50);
+      }
+    }
+  );
+
   Widget _profileImage() {
     return Column(
       children: [
         _circleAvatar(),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
                 onPressed: selectFile,
                 child: const Icon(Icons.add_a_photo_outlined)),
             ElevatedButton(
-                onPressed: selectFile,
+                onPressed: uploadFile,
                 child: const Icon(Icons.cloud_upload_outlined)),
           ],
-        )
+        ),
+        buildProgress()
       ],
     );
   }
 
+  Future<void> fetchProfileImage() async {
+    final userId = Auth().currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref('users/$userId');
+
+    final event = await ref.get();
+
+    if (event.value != null) {
+      final data = event.value as Map;
+      setState(() {
+        if(data['ProfileImage'] != null) {
+          _userPhoto = data['ProfileImage'];
+        }
+      });
+    }
+  }
 
   Future<void> fetchUserData() async {
     final userId = Auth().currentUser!.uid;
@@ -108,6 +203,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _userInfo() {
     fetchUserData();
+    fetchProfileImage();
     String userEmail = user?.email ?? 'User email';
     return Column(
       children: [
@@ -140,4 +236,5 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
 }
