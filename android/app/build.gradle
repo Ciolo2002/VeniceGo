@@ -24,7 +24,9 @@ if (flutterVersionName == null) {
 
 android {
     namespace "unive.it.venice_go"
-    compileSdkVersion flutter.compileSdkVersion
+    // Needed for permission_handler plugin
+    // https://pub.dev/packages/permission_handler
+    compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {
