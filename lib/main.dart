@@ -1,6 +1,6 @@
 import 'package:venice_go/navigation_bar.dart';
 
-import 'download.dart';
+import 'navigation_data/navigation_data_downloader.dart';
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,8 +42,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Navigation a = Navigation();
-    a.download();
+    NavigationDataDownloader downloader = NavigationDataDownloader();
+    downloader.download();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
