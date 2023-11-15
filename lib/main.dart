@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     NavigationDataDownloader downloader = NavigationDataDownloader();
-    downloader.download();
+    downloader.initNavigationData();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
