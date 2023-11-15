@@ -16,14 +16,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final String _userName;
-  late final String _userSurname;
+  late String _userName = '';
+  late String _userSurname = '';
   late String _userPhoto = '';
   final User? user = Auth().currentUser;
 
   // campi per l'upload dei file
   PlatformFile? pickedFile;
   UploadTask? uploadTask;
+
+  @override
+  void initState() {
+    fetchUserData();
+    fetchProfileImage();
+
+    super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if(mounted) {
+      super.setState(fn);
+    }
+  }
+
+  Future<void> fetchUserData() async {
+    final userId = Auth().currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('users/$userId').get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map;
+      setState(() {
+        _userName = data['Name'];
+        _userSurname = data['Surname'];
+      });
+    }
+  }
+
+  Future<void> fetchProfileImage() async {
+    final userId = Auth().currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref('users/$userId');
+
+    final event = await ref.get();
+
+    if (event.value != null) {
+      final data = event.value as Map;
+      setState(() {
+        if(data['ProfileImage'] != null) {
+          _userPhoto = data['ProfileImage'];
+        }
+      });
+    }
+  }
 
   Future<void> signOut() async {
     await Auth().signOut();
@@ -170,40 +215,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> fetchProfileImage() async {
-    final userId = Auth().currentUser!.uid;
-    final ref = FirebaseDatabase.instance.ref('users/$userId');
-
-    final event = await ref.get();
-
-    if (event.value != null) {
-      final data = event.value as Map;
-      setState(() {
-        if(data['ProfileImage'] != null) {
-          _userPhoto = data['ProfileImage'];
-        }
-      });
-    }
-  }
-
-  Future<void> fetchUserData() async {
-    final userId = Auth().currentUser!.uid;
-    final ref = FirebaseDatabase.instance.ref('users/$userId');
-
-    DatabaseEvent event = await ref.once();
-
-    if (event.snapshot.value != null) {
-      final data = event.snapshot.value as Map;
-      setState(() {
-        _userName = data['Name'];
-        _userSurname = data['Surname'];
-      });
-    }
-  }
-
   Widget _userInfo() {
-    fetchUserData();
-    fetchProfileImage();
     String userEmail = user?.email ?? 'User email';
     return Column(
       children: [
