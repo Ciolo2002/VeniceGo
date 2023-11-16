@@ -27,13 +27,19 @@ class NavigationDataDownloader {
   /// Throws an exception if the unzipping fails.
   Future<void> _extractData(final Directory dir) async {
     final String zipFile = "${dir.path}/actv_nav.zip";
+    // Decode the zip from the InputFileStream. The archive will have the contents of the
+    // zip, without having stored the data in memory.
+    final inputStream = InputFileStream(zipFile);
+    final archive = ZipDecoder().decodeBuffer(inputStream);
 
-    try {
-      final File file = File(zipFile);
-      final archive = ZipDecoder().decodeBytes(file.readAsBytesSync());
-      extractArchiveToDisk(archive, 'actv_nav');
-    } catch (e) {
-      rethrow;
+    for (var file in archive.files) {
+      if (file.isFile) {
+        // Write the file content to a directory called 'out'.
+        // An OutputFileStream will write the data to disk.
+        final outputStream = OutputFileStream('${dir.path}/out/${file.name}');
+        file.writeContent(outputStream);
+        outputStream.close();
+      }
     }
   }
 
@@ -42,8 +48,9 @@ class NavigationDataDownloader {
   /// Throws an exception if the download or the unzipping fails.
   Future<void> initNavigationData() async {
     try {
-      await _download(await getApplicationDocumentsDirectory());
-      await _extractData(await getApplicationDocumentsDirectory());
+      final Directory dir = await getTemporaryDirectory();
+      await _download(dir);
+      await _extractData(dir);
     } catch (e) {
       rethrow;
     }
