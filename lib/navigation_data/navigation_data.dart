@@ -3,18 +3,28 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import "package:archive/archive_io.dart";
 
-class NavigationDataDownloader {
+class NavigationData {
   /// Downloads the navigation data from the ACTV website and saves it in the app's local storage.
   /// Assumes that permissions are already granted at app start.
   /// Throws an exception if the download fails or data is corrupted.
   Future<void> _download(final Directory dir) async {
-    // TODO: call this method every two weeks
+    // Checks if file already exists.
+    final File file = File("${dir.path}/actv_nav.zip");
+    if (file.existsSync()) {
+      return;
+    }
+    // Checks if file is two weeks old.
+    final DateTime now = DateTime.now();
+    final DateTime lastModified = file.lastModifiedSync();
+    final Duration difference = now.difference(lastModified);
+    if (difference.inDays < 14) {
+      return;
+    }
     final Uri uri = Uri.https("actv.avmspa.it",
         "sites/default/files/attachments/opendata/navigazione/actv_nav.zip");
     // Download using Request and Response
     final http.Request request = http.Request('GET', uri);
     final http.StreamedResponse response = await request.send();
-    final File file = File("${dir.path}/actv_nav.zip");
     await response.stream.pipe(file.openWrite());
     // Check for file integrity
     if (response.contentLength != file.lengthSync()) {
