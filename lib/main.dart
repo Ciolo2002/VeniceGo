@@ -1,6 +1,7 @@
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/pages/google_maps.dart';
 
+import 'navigation_data/navigation_data.dart';
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,7 +17,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() {
@@ -42,6 +43,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    NavigationData navigationData = NavigationData();
+    navigationData.initNavigationData();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -98,6 +101,6 @@ class _MyAppState extends State<MyApp> {
 
 extension StringExtension on String {
   String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1).toLowerCase()}";
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
