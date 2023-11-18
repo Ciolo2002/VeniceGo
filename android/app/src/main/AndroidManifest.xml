@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:label="venice_go"
+        android:label="Venice Go"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
