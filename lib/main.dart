@@ -1,5 +1,6 @@
 import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/pages/google_maps.dart';
+import 'package:venice_go/pages/location_search_screen.dart';
 
 import 'navigation_data/navigation_data.dart';
 import 'widget_tree.dart';
@@ -62,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                 },
                 children: const [
                   GoogleMaps(),
-                  Text('Search'),
+                  LocationSearchScreen(),
                   Text('Saved'),
                   WidgetTree(),
                 ],
