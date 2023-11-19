@@ -21,7 +21,7 @@ class GoogleMaps extends StatefulWidget {
 class _MyGoogleMapsState extends State<GoogleMaps> {
   late GoogleMapController mapController;
 
-  //final LatLng _center = const LatLng(45.4371908, 12.3345898); //COORDINATE DI VENEZIA
+  final LatLng _center = const LatLng(45.4371908, 12.3345898); //COORDINATE DI VENEZIA
 
 
 
@@ -61,9 +61,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
         body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: LatLng(0,0), //COORDINATE DI TEST,
-            //zoom: 13.0, ZOOM DI VENEZIA
-            zoom: 2.0,// ZOOM DI TEST
+            //target: LatLng(0,0), //COORDINATE DI TEST,
+            target: _center, //COORDINATE DI VENEZIA
+            zoom: 13.0,// ZOOM DI VENEZIA
+            //zoom: 2.0,// ZOOM DI TEST
           ),
           markers: _markers.values.toSet(),
         ),
