@@ -4,9 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:async';
 
-//tentativo di implementare una barra di ricerca che usi Places API
-//TODO limitare le chiamate, aggiungendo ad esempio delay o call ogni tot caratteri
-//sessionToken sembra funzionare, da vedere se questo limita i costi, in quanto le singole chiamate vengono comunque segnalataìe
 //TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 
 class LocationSearchScreen extends StatefulWidget {
@@ -22,6 +19,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
   String? _sessionToken;
   Timer? _debounce;
+  String _selectedFilter = '';
   String generateSessionToken() {
     var uuid = Uuid();
     return uuid.v4();
@@ -37,16 +35,20 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     }
 
     const String apiKey = 'AIzaSyDFdHfwEJu1nt3F2aWkni1Hu8Zert0cbFA';
-    const String baseUrl =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String url =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input';
 
     // Coordinates for Venice, Italy
     const double veniceLat = 45.4375;
     const double veniceLng = 12.3355;
     const int radius = 10000; //decide reaasonable restriction
 
-    final String url =
-        '$baseUrl?input=$input&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
+    if (_selectedFilter.isNotEmpty) {
+      url += '&types=$_selectedFilter';
+    }
+
+    url +=
+        '&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
     _debounce = Timer(Duration(milliseconds: 500), () async {
       // Make requests to the Google Places API based on the user input
@@ -66,6 +68,12 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     });
   }
 
+  void onFilterSelected(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+    });
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -80,6 +88,47 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected('food'),
+                    child: Text('F'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected('museum'),
+                    child: Text('M'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected('night_club'),
+                    child: Text('N'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected('park'),
+                    child: Text('P'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected('supermarket'),
+                    child: Text('S'),
+                  ),
+                ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => onFilterSelected(''),
+                    child: Text('E'),
+                  ),
+                ),
+              ],
+            ),
             TextField(
               controller: _searchController,
               onChanged: (input) {
@@ -100,7 +149,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                       // Handle selection
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
-                      _suggestions = [];
+                      _suggestions =
+                          []; // trovare il modo di eliminare le suggestion dallo schermo dopo la selezione
                     },
                   );
                 },
