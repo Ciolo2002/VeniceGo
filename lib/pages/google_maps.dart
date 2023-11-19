@@ -6,6 +6,8 @@
 //flutter  pub run build_runner build --delete-conflicting-outputs //POTREBBE NON SERVIRE, GENERA IL FILE locations.g.dart (che ho già fatto io)
 //GOOGLE MAP ""S CONSOLE: https://console.cloud.google.com/google/maps-apis/home?project=venicego ACCEDETE CON LA MAIL DELL'UNIVERSITA'
 
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../locations.dart' as locations;
@@ -46,6 +48,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
           ),
         );
         _markers[office.name] = marker;
+
       }
     });
   }
@@ -67,6 +70,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             //zoom: 2.0,// ZOOM DI TEST
           ),
           markers: _markers.values.toSet(),
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          myLocationEnabled:true,
+          myLocationButtonEnabled: true,
         ),
       ),
     );
