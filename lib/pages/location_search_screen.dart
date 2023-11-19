@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
+import 'dart:async';
 
 //tentativo di implementare una barra di ricerca che usi Places API
 //TODO limitare le chiamate, aggiungendo ad esempio delay o call ogni tot caratteri
@@ -20,13 +21,17 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
   List<String> _suggestions = [];
 
   String? _sessionToken;
-
+  Timer? _debounce;
   String generateSessionToken() {
     var uuid = Uuid();
     return uuid.v4();
   }
 
   void fetchSuggestions(String input) async {
+    if (_debounce != null && _debounce!.isActive) {
+      _debounce!.cancel();
+    }
+
     if (_sessionToken == null) {
       _sessionToken = generateSessionToken();
     }
@@ -43,17 +48,29 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     final String url =
         '$baseUrl?input=$input&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
-    final response = await http.get(Uri.parse(url));
+    _debounce = Timer(Duration(milliseconds: 500), () async {
+      // Make requests to the Google Places API based on the user input
+      // Update _suggestions with fetched suggestions
+      final response = await http.get(Uri.parse(url));
 
-    print(url);
+      print(url);
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        _suggestions = List<String>.from(
-            data['predictions'].map((prediction) => prediction['description']));
-      });
-    }
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _suggestions = List<String>.from(data['predictions']
+              .map((prediction) => prediction['description']));
+        });
+      }
+      // Set state to trigger UI update with new suggestions
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -83,6 +100,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                       // Handle selection
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
+                      _suggestions = [];
                     },
                   );
                 },
