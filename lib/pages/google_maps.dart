@@ -6,6 +6,8 @@
 //flutter  pub run build_runner build --delete-conflicting-outputs //POTREBBE NON SERVIRE, GENERA IL FILE locations.g.dart (che ho già fatto io)
 //GOOGLE MAP ""S CONSOLE: https://console.cloud.google.com/google/maps-apis/home?project=venicego ACCEDETE CON LA MAIL DELL'UNIVERSITA'
 
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../locations.dart' as locations;
@@ -21,7 +23,7 @@ class GoogleMaps extends StatefulWidget {
 class _MyGoogleMapsState extends State<GoogleMaps> {
   late GoogleMapController mapController;
 
-  //final LatLng _center = const LatLng(45.4371908, 12.3345898); //COORDINATE DI VENEZIA
+  final LatLng _center = const LatLng(45.4371908, 12.3345898); //COORDINATE DI VENEZIA
 
 
 
@@ -46,6 +48,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
           ),
         );
         _markers[office.name] = marker;
+
       }
     });
   }
@@ -61,11 +64,16 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
         body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: LatLng(0,0), //COORDINATE DI TEST,
-            //zoom: 13.0, ZOOM DI VENEZIA
-            zoom: 2.0,// ZOOM DI TEST
+            //target: LatLng(0,0), //COORDINATE DI TEST,
+            target: _center, //COORDINATE DI VENEZIA
+            zoom: 13.0,// ZOOM DI VENEZIA
+            //zoom: 2.0,// ZOOM DI TEST
           ),
           markers: _markers.values.toSet(),
+          scrollGesturesEnabled: true,
+          zoomGesturesEnabled: true,
+          myLocationEnabled:true,
+          myLocationButtonEnabled: true,
         ),
       ),
     );

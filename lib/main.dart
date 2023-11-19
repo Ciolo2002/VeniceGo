@@ -61,6 +61,7 @@ class _MyAppState extends State<MyApp> {
                     currentIndex = index;
                   });
                 },
+                physics: const NeverScrollableScrollPhysics(),
                 children: const [
                   GoogleMaps(),
                   LocationSearchScreen(),
