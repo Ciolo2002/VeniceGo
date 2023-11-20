@@ -16,6 +16,7 @@ class LocationSearchScreen extends StatefulWidget {
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
   TextEditingController _searchController = TextEditingController();
   List<String> _suggestions = [];
+  List<String> _suggestions_id = [];
 
   String? _sessionToken;
   Timer? _debounce;
@@ -51,8 +52,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         '&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
     _debounce = Timer(Duration(milliseconds: 500), () async {
-      // Make requests to the Google Places API based on the user input
-      // Update _suggestions with fetched suggestions
       final response = await http.get(Uri.parse(url));
 
       print(url);
@@ -60,12 +59,21 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          _suggestions = List<String>.from(data['predictions']
-              .map((prediction) => prediction['description']));
+          _suggestions =
+              List<String>.from(data['predictions'].map((prediction) {
+            String description = prediction['description'] as String;
+            return _parseMainName(description);
+          }));
+          _suggestions_id = List<String>.from(
+              data['predictions'].map((prediction) => prediction['place_id']));
         });
       }
-      // Set state to trigger UI update with new suggestions
     });
+  }
+
+  String _parseMainName(String description) {
+    List<String> parts = description.split(',');
+    return parts.isNotEmpty ? parts[0] : description;
   }
 
   void onFilterSelected(String filter) {
@@ -147,6 +155,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                     title: Text(_suggestions[index]),
                     onTap: () {
                       // Handle selection
+                      print('Selected: ${_suggestions_id[index]}');
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
                       _suggestions =
