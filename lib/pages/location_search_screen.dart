@@ -10,7 +10,7 @@ class LocationSearchScreen extends StatefulWidget {
   const LocationSearchScreen({super.key});
 
   @override
-  _LocationSearchScreenState createState() => _LocationSearchScreenState();
+  State<LocationSearchScreen> createState() => _LocationSearchScreenState();
 }
 
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
@@ -33,8 +33,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
     _sessionToken ??= generateSessionToken();
 
-    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
-    // const String apiKey = 'AIzaSyDFdHfwEJu1nt3F2aWkni1Hu8Zert0cbFA';
+    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     String url =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input';
 
@@ -51,7 +50,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         '&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
     _debounce = Timer(const Duration(milliseconds: 500), () async {
-      final response = await http.get(Uri.parse(url));
+      final http.Response response = await http.get(Uri.parse(url));
 
       print(url);
 
