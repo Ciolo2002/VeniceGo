@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:async';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 //TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 
 class LocationSearchScreen extends StatefulWidget {
@@ -14,15 +14,15 @@ class LocationSearchScreen extends StatefulWidget {
 }
 
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<String> _suggestions = [];
-  List<String> _suggestions_id = [];
+  List<String> _suggestionsId = [];
 
   String? _sessionToken;
   Timer? _debounce;
   String _selectedFilter = '';
   String generateSessionToken() {
-    var uuid = Uuid();
+    var uuid = const Uuid();
     return uuid.v4();
   }
 
@@ -31,11 +31,10 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
       _debounce!.cancel();
     }
 
-    if (_sessionToken == null) {
-      _sessionToken = generateSessionToken();
-    }
+    _sessionToken ??= generateSessionToken();
 
-    const String apiKey = 'AIzaSyDFdHfwEJu1nt3F2aWkni1Hu8Zert0cbFA';
+    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY']!;
+    // const String apiKey = 'AIzaSyDFdHfwEJu1nt3F2aWkni1Hu8Zert0cbFA';
     String url =
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input';
 
@@ -51,7 +50,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     url +=
         '&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
-    _debounce = Timer(Duration(milliseconds: 500), () async {
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
       final response = await http.get(Uri.parse(url));
 
       print(url);
@@ -64,7 +63,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
             String description = prediction['description'] as String;
             return _parseMainName(description);
           }));
-          _suggestions_id = List<String>.from(
+          _suggestionsId = List<String>.from(
               data['predictions'].map((prediction) => prediction['place_id']));
         });
       }
@@ -102,37 +101,37 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected('food'),
-                    child: Text('F'),
+                    child: const Text('F'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected('museum'),
-                    child: Text('M'),
+                    child: const Text('M'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected('night_club'),
-                    child: Text('N'),
+                    child: const Text('N'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected('park'),
-                    child: Text('P'),
+                    child: const Text('P'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected('supermarket'),
-                    child: Text('S'),
+                    child: const Text('S'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => onFilterSelected(''),
-                    child: Text('E'),
+                    child: const Text('E'),
                   ),
                 ),
               ],
@@ -142,11 +141,11 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               onChanged: (input) {
                 fetchSuggestions(input);
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search for a location',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
                 itemCount: _suggestions.length,
@@ -155,7 +154,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                     title: Text(_suggestions[index]),
                     onTap: () {
                       // Handle selection
-                      print('Selected: ${_suggestions_id[index]}');
+                      print('Selected: ${_suggestionsId[index]}');
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
                       _suggestions =
