@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:venice_go/pages/login_register_page.dart';
-
-
 
 class MyNavigationBar extends StatefulWidget {
   final int selectedIndex;
@@ -9,11 +6,11 @@ class MyNavigationBar extends StatefulWidget {
   final void Function(int) onDestinationSelected;
 
   const MyNavigationBar({
-    Key? key,
+    super.key,
     this.selectedIndex = 0,
     this.backgroundColor,
     required this.onDestinationSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<MyNavigationBar> createState() => _MyNavigationBarState();
@@ -31,35 +28,33 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-
     return NavigationBar(
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      selectedIndex: widget.selectedIndex,
-      onDestinationSelected: widget.onDestinationSelected,
-      animationDuration: const Duration(milliseconds: 1500),
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home),
-          selectedIcon: Icon(Icons.home),
-          label: 'Dashboard',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.search),
-          selectedIcon: Icon(Icons.search),
-          label: 'Search',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.bookmark),
-          selectedIcon: Icon(Icons.bookmark),
-          label: 'Saved',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.account_circle),
-          selectedIcon: Icon(Icons.account_circle),
-          label: 'Account',
-          // Within the `FirstRoute` widget
-        ),
-      ]
-    );
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        selectedIndex: widget.selectedIndex,
+        onDestinationSelected: widget.onDestinationSelected,
+        animationDuration: const Duration(milliseconds: 1500),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            selectedIcon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bookmark),
+            selectedIcon: Icon(Icons.bookmark),
+            label: 'Saved',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_circle),
+            selectedIcon: Icon(Icons.account_circle),
+            label: 'Account',
+            // Within the `FirstRoute` widget
+          ),
+        ]);
   }
 }

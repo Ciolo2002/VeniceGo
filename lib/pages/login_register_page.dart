@@ -1,20 +1,17 @@
-import 'dart:ffi';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/main.dart';
 import '../auth.dart';
 
-class LoginPage extends StatefulWidget{
-  const LoginPage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage>{
-
+class _LoginPageState extends State<LoginPage> {
   String? errorMessage = '';
   bool isLogin = true;
   bool isPasswordVisible = false;
@@ -24,12 +21,16 @@ class _LoginPageState extends State<LoginPage>{
 
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
-  final TextEditingController _controllerPasswordConfirm = TextEditingController();
+  final TextEditingController _controllerPasswordConfirm =
+      TextEditingController();
 
   // effettua il login tramite Firebase Authentication
   Future<void> _signInWithEmailAndPassword() async {
-    Map<String, TextEditingController> requiredF={'email': _controllerEmail,'password': _controllerPassword};
-    if(!_checkMapRequired(requiredF)){
+    Map<String, TextEditingController> requiredF = {
+      'email': _controllerEmail,
+      'password': _controllerPassword
+    };
+    if (!_checkMapRequired(requiredF)) {
       return;
     }
 
@@ -49,20 +50,19 @@ class _LoginPageState extends State<LoginPage>{
   // 2. carica i dati dell'utente nel db realtime
   Future<void> _createUserWithEmailAndPassword() async {
     // mappa degli input obbligatori
-    Map<String, TextEditingController> requiredF=
-    {
-      'name':_controllerName,
-      'surname':_controllerSurname,
+    Map<String, TextEditingController> requiredF = {
+      'name': _controllerName,
+      'surname': _controllerSurname,
       'email': _controllerEmail,
       'password': _controllerPassword,
       'password_confirm': _controllerPasswordConfirm
     };
 
-    if(!_checkMapRequired(requiredF)){
-        return;
+    if (!_checkMapRequired(requiredF)) {
+      return;
     }
     // check per la conferma della password
-    if (_controllerPassword.text!=_controllerPasswordConfirm.text){
+    if (_controllerPassword.text != _controllerPasswordConfirm.text) {
       return setState(() {
         errorMessage = "Password does not match";
       });
@@ -70,11 +70,10 @@ class _LoginPageState extends State<LoginPage>{
 
     try {
       // creo l'utente con firebase Auth e lo carico in newUser
-      final newUser =
-        await Auth().createUSerWithEmailAndPassword(
-          email: _controllerEmail.text,
-          password: _controllerPassword.text,
-        );
+      final newUser = await Auth().createUSerWithEmailAndPassword(
+        email: _controllerEmail.text,
+        password: _controllerPassword.text,
+      );
 
       // newUser contiene l'id generato da Firebase
       String userId = newUser.user!.uid;
@@ -83,11 +82,10 @@ class _LoginPageState extends State<LoginPage>{
 
       // carico l'utente nel db realtime con l'Id di firebase Auth
       await ref.child(userId).set({
-          "Name": _controllerName.text,
-          "Surname": _controllerSurname.text,
-          "Email": _controllerEmail.text,
+        "Name": _controllerName.text,
+        "Surname": _controllerSurname.text,
+        "Email": _controllerEmail.text,
       });
-
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMessage = _formatExceptionMessage(e.code);
@@ -96,9 +94,9 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   // controlla se i campi required del form sono vuoti, in caso interrompe
-  bool _checkMapRequired(Map<String ,TextEditingController>requiredF){
+  bool _checkMapRequired(Map<String, TextEditingController> requiredF) {
     for (final fieldName in requiredF.keys) {
-      if ( !_hasValue(fieldName, requiredF[fieldName]!)) {
+      if (!_hasValue(fieldName, requiredF[fieldName]!)) {
         return false; // Interrompi la funzione se uno dei campi richiesti è vuoto
       }
     }
@@ -106,10 +104,10 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   // controlla se i singoli campi sono vuoti
-  bool _hasValue(String name, TextEditingController cont){
-    if(cont.text.isEmpty){
+  bool _hasValue(String name, TextEditingController cont) {
+    if (cont.text.isEmpty) {
       setState(() {
-        errorMessage=_formatExceptionMessage("$name is required");
+        errorMessage = _formatExceptionMessage("$name is required");
       });
       return false;
     }
@@ -117,54 +115,57 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   // formatta i messaggi di errore
-  String _formatExceptionMessage(String val){
+  String _formatExceptionMessage(String val) {
     return val.replaceAll('_', ' ').replaceAll('-', ' ').capitalize();
   }
 
   // Widget per fare il toggle della password (l'occhio)
-  Widget _entryField( String title, TextEditingController controller, {bool isPassword=false}){
+  Widget _entryField(String title, TextEditingController controller,
+      {bool isPassword = false}) {
     return TextField(
       controller: controller,
       obscureText: isPassword && !isPasswordVisible,
-      onChanged:(String value){
+      onChanged: (String value) {
         setState(() {
-          errorMessage='';
+          errorMessage = '';
         });
       },
       decoration: InputDecoration(
         labelText: title,
-        suffixIcon: isPassword ? IconButton(
-            icon: Icon(
-              // Based on isPasswordVisible state choose the icon
-              isPasswordVisible
-                  ? Icons.visibility
-                  : Icons.visibility_off,
-              color: Theme.of(context).primaryColorDark,
-            ),
-            onPressed: () {
-              // Update the state i.e. toogle the state of isPasswordVisible variable
-              setState(() {
-                isPasswordVisible = !isPasswordVisible;
-              });
-            }) : null,
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  // Based on isPasswordVisible state choose the icon
+                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  // Update the state i.e. toogle the state of isPasswordVisible variable
+                  setState(() {
+                    isPasswordVisible = !isPasswordVisible;
+                  });
+                })
+            : null,
       ),
     );
   }
 
   // Widget per il submit del form
-  Widget _submitButton(){
+  Widget _submitButton() {
     return ElevatedButton(
       onPressed: () {
-        isLogin ? _signInWithEmailAndPassword() : _createUserWithEmailAndPassword();
+        isLogin
+            ? _signInWithEmailAndPassword()
+            : _createUserWithEmailAndPassword();
       },
       child: Text(isLogin ? 'Login' : 'Register'),
     );
   }
 
   // Widget per switchare tra Login e Registrazione
-  Widget _loginOrRegisterButton(){
+  Widget _loginOrRegisterButton() {
     return TextButton(
-      onPressed: (){
+      onPressed: () {
         setState(() {
           isLogin = !isLogin;
           errorMessage = '';
@@ -175,18 +176,18 @@ class _LoginPageState extends State<LoginPage>{
   }
 
   // titolo della pagina
-  Widget _title(){
-    return isLogin ? const Text('Login'): const Text('Registrazione');
+  Widget _title() {
+    return isLogin ? const Text('Login') : const Text('Registrazione');
   }
 
   // widget per contenere i vari messaggi di errore
-  Widget _errorMessage(){
-    return Text(errorMessage == '' ?'' : 'Humm ? $errorMessage');
+  Widget _errorMessage() {
+    return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
   }
 
   // in base alla booleana isLogin carica il login o la registrazione
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return isLogin ? _buildSignIn() : _buildRegister();
   }
 
@@ -194,7 +195,7 @@ class _LoginPageState extends State<LoginPage>{
   Le 2 seguenti funzioni ritornano un Widget Scaffold, ovvero un oggetto che
   struttura il layout della pagina caricando a sua volta altri widget
   */
-  Widget _buildRegister(){
+  Widget _buildRegister() {
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -208,17 +209,17 @@ class _LoginPageState extends State<LoginPage>{
               _entryField('Surname', _controllerSurname),
               _entryField('Email', _controllerEmail),
               _entryField('Password', _controllerPassword, isPassword: true),
-              _entryField('Confirm Password', _controllerPasswordConfirm,isPassword: true),
+              _entryField('Confirm Password', _controllerPasswordConfirm,
+                  isPassword: true),
               _errorMessage(),
               _submitButton(),
               _loginOrRegisterButton(),
-            ]
-        ),
+            ]),
       ),
     );
   }
 
-  Widget _buildSignIn(){
+  Widget _buildSignIn() {
     return Scaffold(
       body: Container(
         height: double.infinity,
@@ -233,10 +234,8 @@ class _LoginPageState extends State<LoginPage>{
               _errorMessage(),
               _submitButton(),
               _loginOrRegisterButton(),
-            ]
-        ),
+            ]),
       ),
     );
   }
-
 }
