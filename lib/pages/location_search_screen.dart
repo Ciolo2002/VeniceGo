@@ -155,8 +155,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                       print('Selected: ${_suggestionsId[index]}');
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
-                      _suggestions =
-                          []; // trovare il modo di eliminare le suggestion dallo schermo dopo la selezione
+                      // trovare il modo di eliminare le suggestion dallo schermo dopo la selezione
+                      _suggestions = [];
                     },
                   );
                 },
