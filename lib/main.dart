@@ -45,8 +45,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    NavigationData navigationData = NavigationData();
-    navigationData.initNavigationData();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
