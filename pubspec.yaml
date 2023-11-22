@@ -50,6 +50,7 @@ dependencies:
   uuid: ^4.2.1
   flutter_native_splash: ^2.2.4
   flutter_dotenv: ^5.1.0
+  geolocator: ^10.1.0
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
