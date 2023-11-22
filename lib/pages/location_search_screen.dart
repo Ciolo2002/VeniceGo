@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../locations.dart' as locations;
 //TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 
 class LocationSearchScreen extends StatefulWidget {
@@ -37,8 +38,9 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input';
 
     // Coordinates for Venice, Italy
-    const double veniceLat = 45.4375;
-    const double veniceLng = 12.3355;
+    final locations.LatLng veniceGeoCoords =
+        locations.LatLng(lat: 45.4371908, lng: 12.3345898);
+
     const int radius = 10000; //decide reasonable restriction
 
     if (_selectedFilter.isNotEmpty) {
@@ -46,7 +48,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     }
 
     url +=
-        '&components=country:IT&locationrestriction=circle:$radius@$veniceLat,$veniceLng&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
+        '&components=country:IT&locationrestriction=circle:$radius@veniceLng${veniceGeoCoords.lat},${veniceGeoCoords.lng}&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
 
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       final http.Response response = await http.get(Uri.parse(url));
@@ -152,11 +154,11 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                     title: Text(_suggestions[index]),
                     onTap: () {
                       // Handle selection
-                      print('Selected: ${_suggestionsId[index]}');
+                      print('Selected ID: ${_suggestionsId[index]}');
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
                       // trovare il modo di eliminare le suggestion dallo schermo dopo la selezione
-                      _suggestions = [];
+                      _suggestions.clear();
                     },
                   );
                 },
