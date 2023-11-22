@@ -17,7 +17,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<String> _suggestions = [];
   List<String> _suggestionsId = [];
-
   String? _sessionToken;
   Timer? _debounce;
   String _selectedFilter = '';
@@ -26,7 +25,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     return uuid.v4();
   }
 
-  void fetchSuggestions(String input) async {
+  Future<void> fetchSuggestions(String input) async {
     if (_debounce != null && _debounce!.isActive) {
       _debounce!.cancel();
     }
@@ -40,7 +39,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     // Coordinates for Venice, Italy
     const double veniceLat = 45.4375;
     const double veniceLng = 12.3355;
-    const int radius = 10000; //decide reaasonable restriction
+    const int radius = 10000; //decide reasonable restriction
 
     if (_selectedFilter.isNotEmpty) {
       url += '&types=$_selectedFilter';
