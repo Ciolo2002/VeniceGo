@@ -2,7 +2,6 @@ import 'package:venice_go/navigation_bar.dart';
 import 'package:venice_go/pages/google_maps.dart';
 import 'package:venice_go/pages/location_search_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'navigation_data/navigation_data.dart';
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
