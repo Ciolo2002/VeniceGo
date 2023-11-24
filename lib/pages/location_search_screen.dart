@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:venice_go/pages/google_maps.dart';
 import '../locations.dart' as locations;
 //TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 
@@ -22,7 +23,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
   Timer? _debounce;
   String _selectedFilter = '';
   String generateSessionToken() {
-    var uuid = const Uuid();
+    Uuid uuid = const Uuid();
     return uuid.v4();
   }
 
@@ -75,7 +76,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     return parts.isNotEmpty ? parts[0] : description;
   }
 
-  void onFilterSelected(String filter) {
+  void setSelectedFilter(String filter) {
     setState(() {
       _selectedFilter = filter;
     });
@@ -83,6 +84,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
   @override
   void dispose() {
+    // Basically, C++'s destructor call.
     _searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -100,37 +102,37 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected('food'),
+                    onPressed: () => setSelectedFilter('food'),
                     child: const Text('F'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected('museum'),
+                    onPressed: () => setSelectedFilter('museum'),
                     child: const Text('M'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected('night_club'),
+                    onPressed: () => setSelectedFilter('night_club'),
                     child: const Text('N'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected('park'),
+                    onPressed: () => setSelectedFilter('park'),
                     child: const Text('P'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected('supermarket'),
+                    onPressed: () => setSelectedFilter('supermarket'),
                     child: const Text('S'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => onFilterSelected(''),
+                    onPressed: () => setSelectedFilter(''),
                     child: const Text('E'),
                   ),
                 ),
@@ -154,6 +156,14 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                     title: Text(_suggestions[index]),
                     onTap: () {
                       // Handle selection
+                      // TODO: https://docs.flutter.dev/cookbook/navigation/navigation-basics
+                      // Quel link spiega come navigare tra le pagine
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const GoogleMaps()));
+                      // https://stackoverflow.com/questions/50818770/passing-data-to-a-stateful-widget-in-flutter
+                      // come passare parametri ad uno stateful widget
                       print('Selected ID: ${_suggestionsId[index]}');
                       print('Selected: ${_suggestions[index]}');
                       _sessionToken = null;
