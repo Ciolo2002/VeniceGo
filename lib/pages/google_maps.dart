@@ -13,7 +13,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../locations.dart' as locations;
 
 class GoogleMaps extends StatefulWidget {
-  final Map<String, Marker>? markers;
+  final List<Marker>? markers;
   const GoogleMaps({super.key, this.markers});
 
   @override
@@ -25,27 +25,11 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
 
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
 
-  final Map<String, Marker> _markers = {};
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.markers != null) {
-      setState(() {
-        _markers.addAll(widget.markers!);
-      });
-    }
-  }
-
-  /*
-    * QUESTO CI PERMETTE DI DEFINIRE DEI PUNTI DI INTERESSE CHE VOGLIAMO NOI SULLA MAPPA
-    * per vedere il loro funzionamento (con gli esempi che da google, usare le coordiante
-    * TODO CAPIRE COME FARE A CAMBIARE I PUNTI DI INTERESSE
-    * (guardare commenti in locations_search_screen.dart)
-  */
+  /// When the map is created, we add some default markers if we do not have any.
   Future<void> _onMapCreated(GoogleMapController controller) async {
-    if (widget.markers == null) {
-      final googleOffices = await locations.getGoogleOffices();
+    if (widget.markers != null && widget.markers!.isEmpty) {
+      final locations.Locations googleOffices =
+          await locations.getGoogleOffices();
       setState(() {
         for (final office in googleOffices.offices) {
           final marker = Marker(
@@ -56,7 +40,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               snippet: office.address,
             ),
           );
-          _markers[office.name] = marker;
+          widget.markers!.add(marker);
         }
       });
     }

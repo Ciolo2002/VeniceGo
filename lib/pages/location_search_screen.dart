@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:uuid/uuid.dart';
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:venice_go/pages/google_maps.dart';
@@ -16,79 +15,93 @@ class LocationSearchScreen extends StatefulWidget {
 }
 
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<String> _suggestions = [];
-  List<String> _suggestionsId = [];
-  String? _sessionToken;
-  Timer? _debounce;
-  String _selectedFilter = '';
-  String generateSessionToken() {
-    Uuid uuid = const Uuid();
-    return uuid.v4();
+  final TextEditingController _textChangeController = TextEditingController();
+  final Map<String, String> _suggestions = {};
+  late String _filter;
+  String _previousUserInput = '';
+  Timer? _userInputTimer;
+  _setFilter(String filter) {
+    setState(() {
+      _filter = filter;
+    });
   }
 
-  Future<void> fetchSuggestions(String input) async {
-    if (_debounce != null && _debounce!.isActive) {
-      _debounce!.cancel();
-    }
-
-    _sessionToken ??= generateSessionToken();
-
+  /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
+  /// Places API.
+  /// The method returns the decoded json data if the user has not typed any input after
+  /// 500ms of inactivity
+  Future<dynamic> _getMarkers(String userInput) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
-    String url =
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input';
-
-    // Coordinates for Venice, Italy
     final locations.LatLng veniceGeoCoords =
         locations.LatLng(lat: 45.4371908, lng: 12.3345898);
-
-    const int radius = 10000; //decide reasonable restriction
-
-    if (_selectedFilter.isNotEmpty) {
-      url += '&types=$_selectedFilter';
-    }
-
-    url +=
-        '&components=country:IT&locationrestriction=circle:$radius@veniceLng${veniceGeoCoords.lat},${veniceGeoCoords.lng}&key=$apiKey&sessiontoken=$_sessionToken'; // Adjust parameters
-
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
-      final http.Response response = await http.get(Uri.parse(url));
-
-      print(url);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _suggestions =
-              List<String>.from(data['predictions'].map((prediction) {
-            String description = prediction['description'] as String;
-            return _parseMainName(description);
-          }));
-          _suggestionsId = List<String>.from(
-              data['predictions'].map((prediction) => prediction['place_id']));
-        });
+    // Delay execution if user input has not changed
+    if (userInput == _previousUserInput) {
+      if (_userInputTimer != null && _userInputTimer!.isActive) {
+        _userInputTimer!.cancel();
       }
+      _userInputTimer = Timer(const Duration(milliseconds: 500), () {
+        _getMarkers(userInput);
+      });
+      return null;
+    }
+    _previousUserInput = userInput;
+    String url = 'https://places.googleapis.com/v1/places:searchText';
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      // Change this to add parameters
+      'X-Goog-FieldMask': 'places.id, places.displayName, places.location',
+    };
+    String body = json.encode({
+      "locationBias": {
+        "circle": {
+          "center": {
+            "latitude": veniceGeoCoords.lat,
+            "longitude": veniceGeoCoords.lng,
+          },
+          "radiusMeters": 10000, // 10 Km
+        },
+      },
+      'textQuery': userInput,
+      if (_filter.isNotEmpty) 'includedType': _filter,
     });
+    http.Response response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode != 200) {
+      throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
+    }
+    return json.decode(response.body);
   }
 
-  String _parseMainName(String description) {
-    List<String> parts = description.split(',');
-    return parts.isNotEmpty ? parts[0] : description;
+  Future<void> getMarkers(String userInput) async {
+    // Modify this method to use the _getMarkers() method and check for null values
+    // before setting the _suggestions state variable.
+    final data = await _getMarkers(userInput);
+    print(data);
+    if (data != null) {}
   }
 
-  void setSelectedFilter(String filter) {
-    setState(() {
-      _selectedFilter = filter;
-    });
-  }
+  // Future<void> fetchSuggestions(String input) async {
+  //     if (response.statusCode == 200) {
+  //       final data = json.decode(response.body);
+  //       setState(() {
+  //         _suggestions =
+  //             List<String>.from(data['predictions'].map((prediction) {
+  //           String description = prediction['description'] as String;
+  //           return _parseMainName(description);
+  //         }));
+  //         _suggestionsId = List<String>.from(
+  //             data['predictions'].map((prediction) => prediction['place_id']));
+  //       });
+  //     }
+  //   });
+  // }
 
-  @override
-  void dispose() {
-    // Basically, C++'s destructor call.
-    _searchController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
+  //   String _parseMainName(String description) {
+  //     List<String> parts = description.split(',');
+  //     return parts.isNotEmpty ? parts[0] : description;
+  //   }
 
   @override
   Widget build(BuildContext context) {
@@ -102,46 +115,46 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter('food'),
+                    onPressed: () => _setFilter('food'),
                     child: const Text('F'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter('museum'),
+                    onPressed: () => _setFilter('museum'),
                     child: const Text('M'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter('night_club'),
+                    onPressed: () => _setFilter('night_club'),
                     child: const Text('N'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter('park'),
+                    onPressed: () => _setFilter('park'),
                     child: const Text('P'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter('supermarket'),
+                    onPressed: () => _setFilter('supermarket'),
                     child: const Text('S'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => setSelectedFilter(''),
+                    onPressed: () => _setFilter(''),
                     child: const Text('E'),
                   ),
                 ),
               ],
             ),
             TextField(
-              controller: _searchController,
+              controller: _textChangeController,
               onChanged: (input) {
-                fetchSuggestions(input);
+                getMarkers(input);
               },
               decoration: const InputDecoration(
                 labelText: 'Search for a location',
@@ -153,22 +166,16 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 itemCount: _suggestions.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(_suggestions[index]),
+                    // TODO: Fix porcata di copilot
+                    title: Text(_suggestions.keys.elementAt(index)),
                     onTap: () {
-                      // Handle selection
-                      // TODO: https://docs.flutter.dev/cookbook/navigation/navigation-basics
-                      // Quel link spiega come navigare tra le pagine
+                      // Changes to Google Maps page if result is selected.
                       Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => const GoogleMaps()));
                       // https://stackoverflow.com/questions/50818770/passing-data-to-a-stateful-widget-in-flutter
                       // come passare parametri ad uno stateful widget
-                      print('Selected ID: ${_suggestionsId[index]}');
-                      print('Selected: ${_suggestions[index]}');
-                      _sessionToken = null;
-                      // trovare il modo di eliminare le suggestion dallo schermo dopo la selezione
-                      _suggestions.clear();
                     },
                   );
                 },
