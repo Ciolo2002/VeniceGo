@@ -78,7 +78,9 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             zoom: 13.0, // ZOOM DI VENEZIA
             //zoom: 2.0,// ZOOM DI TEST
           ),
-          markers: _markers.values.toSet(),
+          markers: widget.markers != null
+              ? Set<Marker>.from(widget.markers!)
+              : <Marker>{}, // Add markers if available
           scrollGesturesEnabled: true,
           zoomGesturesEnabled: true,
           myLocationEnabled: true,
