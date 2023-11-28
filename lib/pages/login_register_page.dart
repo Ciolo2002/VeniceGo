@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/main.dart';
+import 'package:venice_go/pages/forgot_password_page.dart';
 import '../auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -180,11 +181,6 @@ class _LoginPageState extends State<LoginPage> {
     return isLogin ? const Text('Login') : const Text('Registrazione');
   }
 
-  // widget per contenere i vari messaggi di errore
-  Widget _errorMessage() {
-    return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
-  }
-
   // in base alla booleana isLogin carica il login o la registrazione
   @override
   Widget build(BuildContext context) {
@@ -197,24 +193,33 @@ class _LoginPageState extends State<LoginPage> {
   */
   Widget _buildRegister() {
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         height: double.infinity,
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _entryField('Name', _controllerName),
-              _entryField('Surname', _controllerSurname),
-              _entryField('Email', _controllerEmail),
-              _entryField('Password', _controllerPassword, isPassword: true),
-              _entryField('Confirm Password', _controllerPasswordConfirm,
-                  isPassword: true),
-              _errorMessage(),
-              _submitButton(),
-              _loginOrRegisterButton(),
-            ]),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _entryField('Name', _controllerName),
+                _entryField('Surname', _controllerSurname),
+                _entryField('Email', _controllerEmail),
+                _entryField('Password', _controllerPassword, isPassword: true),
+                _entryField('Confirm Password', _controllerPasswordConfirm,
+                    isPassword: true),
+                if (errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Text(
+                      errorMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                _submitButton(),
+                _loginOrRegisterButton(),
+              ]),
+        ),
       ),
     );
   }
@@ -231,8 +236,31 @@ class _LoginPageState extends State<LoginPage> {
             children: <Widget>[
               _entryField('Email', _controllerEmail),
               _entryField('Password', _controllerPassword, isPassword: true),
-              _errorMessage(),
+              if (errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               _submitButton(),
+              GestureDetector(
+                child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: Text(
+                      "Forgot password?",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
+                    )),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ForgotPasswordPage(),
+                  ),
+                ),
+              ),
               _loginOrRegisterButton(),
             ]),
       ),
