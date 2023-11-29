@@ -37,10 +37,12 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'places',
+      'X-Goog-FieldMask':
+          'places.displayName,places.formattedAddress,places.location,places.id,places.name',
     };
+    // TODO: find how much i can streth the radius before getting garbage (results from random places)
     String body =
-        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} }, "radius": 10000}  }} ';
+        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} }, "radius": 0}  }} ';
 
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
