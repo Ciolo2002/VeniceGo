@@ -85,6 +85,146 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _deleteAccountButton() {
+    return ElevatedButton(
+      // chiamo il metodo signOut() quando l'utente preme il bottone
+      onPressed: () async {
+        showAlertDialog(context);
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: Colors.red,
+      ),
+      child: const Text('Delete Account'),
+    );
+  }
+
+
+  Future<void> _reauthenticateAndDelete() async {
+    try {
+      final providerData = FirebaseAuth.instance.currentUser?.providerData.first;
+
+      if (AppleAuthProvider().providerId == providerData!.providerId) {
+        await FirebaseAuth.instance.currentUser!
+            .reauthenticateWithProvider(AppleAuthProvider());
+      } else if (GoogleAuthProvider().providerId == providerData.providerId) {
+        await FirebaseAuth.instance.currentUser!
+            .reauthenticateWithProvider(GoogleAuthProvider());
+      } else{
+
+        //_showReauthenticateDialog();
+
+        await FirebaseAuth.instance.currentUser!
+            .reauthenticateWithCredential(EmailAuthProvider.credential(
+          email: user!.email!,
+          password: '123456',
+        ));
+
+        // TODO: implementare una finestra dialog per reinserire la password e reautenticare l'utente
+      }
+
+      await FirebaseAuth.instance.currentUser?.delete();
+    } catch (e) {
+      rethrow;
+    }
+
+    await Auth().signOut();
+
+  }
+
+  void _showReauthenticateDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Attention!"),
+          content: const Text("You need to reauthenticate to delete your account"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                //reAuthenticate();
+              },
+              child: const Text("Ok"),
+            ),
+          ],
+        );
+      },
+    );
+
+
+  }
+
+  Future<void> _deleteAccountRealtimeDatabase() async{
+    if(_userPhoto != ''){
+      final ref2 = FirebaseStorage.instance.refFromURL(_userPhoto);
+      await ref2.delete();
+    }
+
+    final userId = Auth().currentUser!.uid;
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('users/$userId').get();
+
+    if (snapshot.exists) {
+      await ref.child('users/$userId').remove();
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the buttons
+    Widget cancelButton = TextButton(
+      onPressed:  (){ Navigator.of(context).pop(); },
+      child: const Text("Cancel"),
+    );
+    Widget continueButton = TextButton(
+      onPressed:  () async {
+          _deleteAccountRealtimeDatabase();
+
+          try {
+            await FirebaseAuth.instance.currentUser!.delete();
+
+          } on FirebaseAuthException catch (e) {
+            print(e.code);
+
+            if (e.code == "requires-recent-login") {
+              await _reauthenticateAndDelete();
+            } else {
+              rethrow;
+            }
+          } catch (e) {
+            rethrow;
+          }
+
+          await Auth().signOut();
+
+          // chiudo il pop up solo se ha finito di cancellare l'account
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
+      },
+      child: const Text(
+          "Delete Account",
+          style: TextStyle(color: Colors.red)
+      ),
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Attention!"),
+      content: const Text("Deleting your account will delete all your data. Are you sure you want to continue?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+
+
   Widget _circleAvatar() {
     if (pickedFile != null) {
       return CircleAvatar(
@@ -243,6 +383,7 @@ class _HomePageState extends State<HomePage> {
                         _profileImage(),
                         _userInfo(),
                         _signOutButton(),
+                        _deleteAccountButton(),
                       ]
                     : []),
       ),
