@@ -15,10 +15,8 @@ class LocationSearchScreen extends StatefulWidget {
 }
 
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
-  final TextEditingController _textChangeController = TextEditingController();
   final Map<String, String> _suggestions = {};
-  late String _filter;
-  String _previousUserInput = '';
+  String _filter = '';
   Timer? _userInputTimer;
   _setFilter(String filter) {
     setState(() {
@@ -28,58 +26,42 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
   /// Places API.
-  /// The method returns the decoded json data if the user has not typed any input after
-  /// 500ms of inactivity
   Future<dynamic> _getMarkers(String userInput) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     final locations.LatLng veniceGeoCoords =
         locations.LatLng(lat: 45.4371908, lng: 12.3345898);
-    // Delay execution if user input has not changed
-    if (userInput == _previousUserInput) {
-      if (_userInputTimer != null && _userInputTimer!.isActive) {
-        _userInputTimer!.cancel();
-      }
-      _userInputTimer = Timer(const Duration(milliseconds: 500), () {
-        _getMarkers(userInput);
-      });
-      return null;
-    }
-    _previousUserInput = userInput;
+    // Waits 500ms before calling the API, if the user has not typed anything else.
+
+    // API call
     String url = 'https://places.googleapis.com/v1/places:searchText';
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      // Change this to add parameters
-      'X-Goog-FieldMask': 'places.id, places.displayName, places.location',
+      'X-Goog-FieldMask': 'places',
     };
-    String body = json.encode({
-      "locationBias": {
-        "circle": {
-          "center": {
-            "latitude": veniceGeoCoords.lat,
-            "longitude": veniceGeoCoords.lng,
-          },
-          "radiusMeters": 10000, // 10 Km
-        },
-      },
-      'textQuery': userInput,
-      if (_filter.isNotEmpty) 'includedType': _filter,
-    });
+    String body =
+        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} }, "radius": 10000}  }} ';
+
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode != 200) {
+      print(response.body);
       throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
     }
     return json.decode(response.body);
   }
 
   Future<void> getMarkers(String userInput) async {
-    // Modify this method to use the _getMarkers() method and check for null values
-    // before setting the _suggestions state variable.
-    final data = await _getMarkers(userInput);
-    print(data);
-    if (data != null) {}
+    if (_userInputTimer?.isActive ?? false) {
+      _userInputTimer?.cancel();
+    } else {
+      _userInputTimer = Timer(const Duration(milliseconds: 500), () async {
+        final mapsJSON = await _getMarkers(userInput);
+        print("Here: $mapsJSON");
+        // TODO: setState _suggestions and update build method
+      });
+    }
   }
 
   // Future<void> fetchSuggestions(String input) async {
@@ -152,7 +134,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               ],
             ),
             TextField(
-              controller: _textChangeController,
               onChanged: (input) {
                 getMarkers(input);
               },
@@ -163,11 +144,11 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: _suggestions.length,
+                itemCount: 1,
                 itemBuilder: (context, index) {
                   return ListTile(
                     // TODO: Fix porcata di copilot
-                    title: Text(_suggestions.keys.elementAt(index)),
+                    title: const Text("CIAO"),
                     onTap: () {
                       // Changes to Google Maps page if result is selected.
                       Navigator.push(
@@ -185,5 +166,11 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _userInputTimer?.cancel();
+    super.dispose();
   }
 }
