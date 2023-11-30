@@ -146,7 +146,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
 
   @override
   void dispose() {
-    _userInputTimer?.cancel();
     super.dispose();
   }
 }
