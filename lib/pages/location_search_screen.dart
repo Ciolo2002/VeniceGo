@@ -5,8 +5,9 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:venice_go/pages/google_maps.dart';
 import '../locations.dart' as locations;
-//TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
+import "../json_utility.dart";
 
+//TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 class LocationSearchScreen extends StatefulWidget {
   const LocationSearchScreen({super.key});
 
@@ -15,9 +16,8 @@ class LocationSearchScreen extends StatefulWidget {
 }
 
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
-  final Map<String, String> _suggestions = {};
+  List<Place> _suggestions = [];
   String _filter = '';
-  Timer? _userInputTimer;
   _setFilter(String filter) {
     setState(() {
       _filter = filter;
@@ -30,9 +30,8 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     final locations.LatLng veniceGeoCoords =
         locations.LatLng(lat: 45.4371908, lng: 12.3345898);
-    // Waits 500ms before calling the API, if the user has not typed anything else.
 
-    // API call
+    // API call section
     String url = 'https://places.googleapis.com/v1/places:searchText';
     Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -40,52 +39,28 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
       'X-Goog-FieldMask':
           'places.displayName,places.formattedAddress,places.location,places.id,places.name',
     };
-    // TODO: find how much i can streth the radius before getting garbage (results from random places)
+    // TODO: find how much i can stretch the radius before getting garbage (results from random places)
     String body =
-        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} }, "radius": 0}  }} ';
+        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} },  "radius": 500}}} ';
 
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode != 200) {
-      print(response.body);
       throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
     }
     return json.decode(response.body);
   }
 
+  /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
   Future<void> getMarkers(String userInput) async {
-    if (_userInputTimer?.isActive ?? false) {
-      _userInputTimer?.cancel();
-    } else {
-      _userInputTimer = Timer(const Duration(milliseconds: 500), () async {
-        final mapsJSON = await _getMarkers(userInput);
-        print("Here: $mapsJSON");
-        // TODO: setState _suggestions and update build method
-      });
-    }
+    final dynamic jsonMarkers = await _getMarkers(userInput);
+    List<dynamic> placesList = jsonMarkers['places'];
+    setState(() {
+      _suggestions =
+          List<Place>.from(placesList.map((place) => Place.fromJson(place)));
+    });
   }
-
-  // Future<void> fetchSuggestions(String input) async {
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body);
-  //       setState(() {
-  //         _suggestions =
-  //             List<String>.from(data['predictions'].map((prediction) {
-  //           String description = prediction['description'] as String;
-  //           return _parseMainName(description);
-  //         }));
-  //         _suggestionsId = List<String>.from(
-  //             data['predictions'].map((prediction) => prediction['place_id']));
-  //       });
-  //     }
-  //   });
-  // }
-
-  //   String _parseMainName(String description) {
-  //     List<String> parts = description.split(',');
-  //     return parts.isNotEmpty ? parts[0] : description;
-  //   }
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +111,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
               ],
             ),
             TextField(
-              onChanged: (input) {
+              onSubmitted: (input) {
                 getMarkers(input);
               },
               decoration: const InputDecoration(
@@ -146,11 +121,10 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: 1,
+                itemCount: _suggestions.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    // TODO: Fix porcata di copilot
-                    title: const Text("CIAO"),
+                    title: Text(_suggestions[index].displayName.text),
                     onTap: () {
                       // Changes to Google Maps page if result is selected.
                       Navigator.push(
