@@ -52,6 +52,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   geolocator: ^10.1.0
   email_validator: ^2.1.17
+  flutter_dialogs: ^3.0.0
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"

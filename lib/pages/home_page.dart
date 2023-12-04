@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'dart:io';
 
 import '../auth.dart';
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void setState(fn) {
-    if(mounted) {
+    if (mounted) {
       super.setState(fn);
     }
   }
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     if (event.value != null) {
       final data = event.value as Map;
       setState(() {
-        if(data['ProfileImage'] != null) {
+        if (data['ProfileImage'] != null) {
           _userPhoto = data['ProfileImage'];
         }
       });
@@ -98,28 +99,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   Future<void> _reauthenticateAndDelete() async {
     try {
-      final providerData = FirebaseAuth.instance.currentUser?.providerData.first;
+      final providerData =
+          FirebaseAuth.instance.currentUser?.providerData.first;
 
+      // in caso implementassimo google e apple, per ora non sono previsti
       if (AppleAuthProvider().providerId == providerData!.providerId) {
         await FirebaseAuth.instance.currentUser!
             .reauthenticateWithProvider(AppleAuthProvider());
       } else if (GoogleAuthProvider().providerId == providerData.providerId) {
         await FirebaseAuth.instance.currentUser!
             .reauthenticateWithProvider(GoogleAuthProvider());
-      } else{
-
-        //_showReauthenticateDialog();
+      } else {
+        String? password = await _showPasswordInputDialog();
 
         await FirebaseAuth.instance.currentUser!
             .reauthenticateWithCredential(EmailAuthProvider.credential(
           email: user!.email!,
-          password: '123456',
+          password: password!,
         ));
-
-        // TODO: implementare una finestra dialog per reinserire la password e reautenticare l'utente
       }
 
       await FirebaseAuth.instance.currentUser?.delete();
@@ -128,33 +127,52 @@ class _HomePageState extends State<HomePage> {
     }
 
     await Auth().signOut();
-
   }
 
-  void _showReauthenticateDialog() {
-    showDialog(
+  Future<String?> _showPasswordInputDialog() async {
+    String? newPassword;
+
+    await showPlatformDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Attention!"),
-          content: const Text("You need to reauthenticate to delete your account"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                //reAuthenticate();
-              },
-              child: const Text("Ok"),
+      builder: (_) => BasicDialogAlert(
+        title: const Text("Please reinsert your password to delete your "
+            "account"),
+        content: Column(
+          children: [
+            Material(
+                child: TextField(
+                  onSubmitted: (value) {
+                    newPassword = value;
+                  },
+                  obscureText: true,
+                  decoration: const InputDecoration(labelText: "New Password"),
+                )
             ),
           ],
-        );
-      },
+        ),
+        actions: <Widget>[
+          BasicDialogAction(
+            title: const Text("Cancel"),
+            onPressed: () {
+              Navigator.pop(context);
+              newPassword = null;
+            },
+          ),
+          BasicDialogAction(
+            title: const Text("Delete Account"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
 
-
+    return newPassword;
   }
 
-  Future<void> _deleteAccountRealtimeDatabase() async{
-    if(_userPhoto != ''){
+  Future<void> _deleteAccountRealtimeDatabase() async {
+    if (_userPhoto != '') {
       final ref2 = FirebaseStorage.instance.refFromURL(_userPhoto);
       await ref2.delete();
     }
@@ -171,44 +189,43 @@ class _HomePageState extends State<HomePage> {
   showAlertDialog(BuildContext context) {
     // set up the buttons
     Widget cancelButton = TextButton(
-      onPressed:  (){ Navigator.of(context).pop(); },
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
       child: const Text("Cancel"),
     );
     Widget continueButton = TextButton(
-      onPressed:  () async {
-          _deleteAccountRealtimeDatabase();
+      onPressed: () async {
+        _deleteAccountRealtimeDatabase();
 
-          try {
-            await FirebaseAuth.instance.currentUser!.delete();
+        try {
+          await FirebaseAuth.instance.currentUser!.delete();
+        } on FirebaseAuthException catch (e) {
+          print(e.code);
 
-          } on FirebaseAuthException catch (e) {
-            print(e.code);
-
-            if (e.code == "requires-recent-login") {
-              await _reauthenticateAndDelete();
-            } else {
-              rethrow;
-            }
-          } catch (e) {
+          if (e.code == "requires-recent-login") {
+            await _reauthenticateAndDelete();
+          } else {
             rethrow;
           }
+        } catch (e) {
+          rethrow;
+        }
 
-          await Auth().signOut();
+        await Auth().signOut();
 
-          // chiudo il pop up solo se ha finito di cancellare l'account
-          if (!context.mounted) return;
-          Navigator.of(context).pop();
+        // chiudo il pop up solo se ha finito di cancellare l'account
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
       },
-      child: const Text(
-          "Delete Account",
-          style: TextStyle(color: Colors.red)
-      ),
+      child: const Text("Delete Account", style: TextStyle(color: Colors.red)),
     );
 
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
+     // todo: usare showplatformdialog
+     AlertDialog alert = AlertDialog(
       title: const Text("Attention!"),
-      content: const Text("Deleting your account will delete all your data. Are you sure you want to continue?"),
+      content: const Text(
+          "Deleting your account will delete all your data. Are you sure you want to continue?"),
       actions: [
         cancelButton,
         continueButton,
@@ -222,8 +239,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-
 
   Widget _circleAvatar() {
     if (pickedFile != null) {
@@ -239,30 +254,25 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     } else {
-      if(_userPhoto != ''){
+      if (_userPhoto != '') {
         return CircleAvatar(
             radius: 80,
             backgroundColor: Colors.black,
             child: CircleAvatar(
                 radius: 75,
                 backgroundImage: NetworkImage(_userPhoto),
-                backgroundColor: Colors.white
-            )
-        );
-      }else{
+                backgroundColor: Colors.white));
+      } else {
         return const CircleAvatar(
             radius: 80,
             backgroundColor: Colors.black,
             child: CircleAvatar(
                 radius: 75,
                 backgroundImage: AssetImage('assets/images/cafoscari.jpg'),
-                backgroundColor: Colors.white
-            )
-        );
+                backgroundColor: Colors.white));
       }
     }
   }
-
 
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles();
@@ -274,7 +284,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future uploadFile() async{
+  Future uploadFile() async {
     final path = 'files/${pickedFile!.name}';
     final file = File(pickedFile!.path!);
 
@@ -302,37 +312,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildProgress() => StreamBuilder<TaskSnapshot>(
-    stream: uploadTask?.snapshotEvents,
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        final data = snapshot.data!;
-        double progress = data.bytesTransferred / data.totalBytes;
+      stream: uploadTask?.snapshotEvents,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final data = snapshot.data!;
+          double progress = data.bytesTransferred / data.totalBytes;
 
-        return SizedBox(
-          height: 50,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
+          return SizedBox(
+            height: 50,
+            child: Stack(fit: StackFit.expand, children: [
               LinearProgressIndicator(
                   value: progress,
                   backgroundColor: Colors.grey,
-                  color: Colors.green
-              ),
+                  color: Colors.green),
               Center(
                 child: Text(
                   '${(progress * 100).roundToDouble()} %',
                   style: const TextStyle(color: Colors.white),
                 ),
               )
-            ]
-          ),
-        );
-
-      } else {
-        return const SizedBox(height: 50);
-      }
-    }
-  );
+            ]),
+          );
+        } else {
+          return const SizedBox(height: 50);
+        }
+      });
 
   Widget _profileImage() {
     return Column(
@@ -389,5 +393,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 }
