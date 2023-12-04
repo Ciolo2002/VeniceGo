@@ -76,26 +76,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _signOutButton() {
-    return ElevatedButton(
-      // chiamo il metodo signOut() quando l'utente preme il bottone
-      onPressed: signOut,
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.indigo,
-      ),
-      child: const Text('Sign Out'),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+      ElevatedButton(
+        // chiamo il metodo signOut() quando l'utente preme il bottone
+        onPressed: signOut,
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.indigo,
+        ),
+        child: const Text('Sign Out'),
+      )
+    ]
     );
   }
 
   Widget _deleteAccountButton() {
-    return ElevatedButton(
-      // chiamo il metodo signOut() quando l'utente preme il bottone
-      onPressed: () async {
-        showDeleteAccountAlertDialog();
-      },
-      style: TextButton.styleFrom(
-        backgroundColor: Colors.red,
-      ),
-      child: const Text('Delete Account'),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+      ElevatedButton(
+        // chiamo il metodo signOut() quando l'utente preme il bottone
+        onPressed: () async {
+          _showDeleteAccountAlertDialog();
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.red,
+        ),
+        child: const Text('Delete Account'),
+      )
+    ]
     );
   }
 
@@ -135,18 +147,26 @@ class _HomePageState extends State<HomePage> {
     await showPlatformDialog(
       context: context,
       builder: (_) => BasicDialogAlert(
-        title: const Text("Please reinsert your password to delete your "
-            "account"),
+        title: const Text("Confirm password"),
         content: Column(
           children: [
+            const Text(
+                "To delete your account, please confirm your password."),
             Material(
+              color: Colors.transparent,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
+                  obscureText: true,
                   onSubmitted: (value) {
                     newPassword = value;
                   },
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: "New Password"),
+                  decoration: const InputDecoration(
+                    border : OutlineInputBorder(),
+                    hintText: "New Password",
+                  ),
                 )
+              )
             ),
           ],
         ),
@@ -159,7 +179,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           BasicDialogAction(
-            title: const Text("Delete Account"),
+            title: const Text("Delete Account", style: TextStyle(color: Colors.red)),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -186,7 +206,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> showDeleteAccountAlertDialog(){
+  Future<void> _showDeleteAccountAlertDialog() {
     return showPlatformDialog(
       context: context,
       builder: (_) => BasicDialogAlert(
@@ -201,7 +221,8 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           BasicDialogAction(
-            title: const Text("Delete Account", style: TextStyle(color: Colors.red)),
+            title: const Text("Delete Account",
+                style: TextStyle(color: Colors.red)),
             onPressed: () async {
               _deleteAccountRealtimeDatabase();
 
@@ -356,7 +377,6 @@ class _HomePageState extends State<HomePage> {
       pickedFile = null;
       uploadTask = null;
     });
-
   }
 
   Widget buildProgress() => StreamBuilder<TaskSnapshot>(
@@ -381,49 +401,79 @@ class _HomePageState extends State<HomePage> {
               )
             ]),
           );
-
         } else {
           return const SizedBox(height: 50);
         }
       });
 
   Widget _profileImage() {
-    return Column(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(children: <Widget>[
+            _circleAvatar(),
+            Positioned(bottom: 5, right: 5, child: _uploadSelectFileButton())
+          ]),
+          if (uploadTask != null && pickedFile != null) buildProgress()
+        ],
+      )
+    );
+  }
+
+  Widget _uploadSelectFileButton() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _circleAvatar(),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if(pickedFile == null)
-            ElevatedButton(
-                onPressed: selectFile,
-                child: const Icon(Icons.add_a_photo_outlined)
-            ),
-            if(pickedFile != null)
-            ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                onPressed: uploadFile,
-                child: const Icon(Icons.cloud_upload_outlined)
-            ),
-          ],
-        ),
-        if (uploadTask != null && pickedFile != null)
-        buildProgress()
+        if (pickedFile == null)
+          Material(
+              color: Colors.transparent,
+              child: Ink(
+                  decoration: const ShapeDecoration(
+                    color: Colors.lightBlue,
+                    shape: CircleBorder(),
+                  ),
+                  child: IconButton(
+                    onPressed: selectFile,
+                    icon: const Icon(Icons.add_a_photo_outlined),
+                    color: Colors.white,
+                  ))),
+        if (pickedFile != null)
+          Material(
+              color: Colors.transparent,
+              child: Ink(
+                  decoration: const ShapeDecoration(
+                    color: Colors.green,
+                    shape: CircleBorder(),
+                  ),
+                  child: IconButton(
+                    onPressed: uploadFile,
+                    icon: const Icon(Icons.cloud_upload_outlined),
+                    color: Colors.white,
+                  )))
       ],
     );
   }
 
   Widget _userInfo() {
     String userEmail = user?.email ?? 'User email';
-    return Column(
+    return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Name: $_userName"),
-        Text("Surname: $_userSurname"),
-        Text("Email: $userEmail")
+        Column(children: [
+          Text("$_userName $_userSurname",
+              style:
+              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(userEmail, style: const TextStyle(fontSize: 14))
+        ])
       ],
+    )
     );
   }
 
