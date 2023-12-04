@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:venice_go/pages/google_maps.dart';
 import '../locations.dart' as locations;
 import "../json_utility.dart";
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    show CameraPosition, GoogleMap, LatLng, Marker;
 
 //TODO introdurre limitazioni per tipo di luogo (ristoranti, monumenti, musei etc.), potenzialmente modificabili dall'utente
 class LocationSearchScreen extends StatefulWidget {
@@ -18,6 +19,9 @@ class LocationSearchScreen extends StatefulWidget {
 class _LocationSearchScreenState extends State<LocationSearchScreen> {
   List<Place> _suggestions = [];
   String _filter = '';
+  final locations.LatLng veniceGeoCoords =
+      locations.LatLng(lat: 45.4371908, lng: 12.3345898);
+
   _setFilter(String filter) {
     setState(() {
       _filter = filter;
@@ -28,8 +32,6 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
   /// Places API.
   Future<dynamic> _getMarkers(String userInput) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
-    final locations.LatLng veniceGeoCoords =
-        locations.LatLng(lat: 45.4371908, lng: 12.3345898);
 
     // API call section
     String url = 'https://places.googleapis.com/v1/places:searchText';
@@ -126,13 +128,20 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                   return ListTile(
                     title: Text(_suggestions[index].displayName.text),
                     onTap: () {
-                      // Changes to Google Maps page if result is selected.
+                      Set<Marker> markers = {};
+                      markers.add(Place.toMarker(_suggestions[index]));
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const GoogleMaps()));
-                      // https://stackoverflow.com/questions/50818770/passing-data-to-a-stateful-widget-in-flutter
-                      // come passare parametri ad uno stateful widget
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GoogleMap(
+                            markers: markers,
+                            initialCameraPosition: CameraPosition(
+                                target: LatLng(
+                                    veniceGeoCoords.lat, veniceGeoCoords.lng),
+                                zoom: 13.0),
+                          ),
+                        ),
+                      );
                     },
                   );
                 },
@@ -142,10 +151,5 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

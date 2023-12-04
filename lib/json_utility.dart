@@ -1,5 +1,7 @@
 import "../locations.dart" as locations;
 
+import 'package:google_maps_flutter/google_maps_flutter.dart'
+    show Marker, MarkerId, InfoWindow, LatLng;
 // These classes are used to parse the JSON response from Google Maps Places API, and are not used anywhere else in the app.
 // They are included here to make the code more readable.
 
@@ -34,4 +36,19 @@ class Place {
   final String formattedAddress;
   final DisplayName displayName;
   final locations.LatLng location;
+
+  static Marker toMarker(Place place) {
+    try {
+      return Marker(
+        markerId: MarkerId(place.id),
+        position: LatLng(place.location.lat, place.location.lng),
+        infoWindow: InfoWindow(
+          title: place.displayName.text,
+          snippet: place.formattedAddress,
+        ),
+      );
+    } catch (e) {
+      throw Exception("Error while converting Place to Marker: $e");
+    }
+  }
 }

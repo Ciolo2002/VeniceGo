@@ -11,9 +11,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../locations.dart' as locations;
+import '../json_utility.dart' show Place;
 
 class GoogleMaps extends StatefulWidget {
-  final List<Marker>? markers;
+  final Set<Marker>? markers;
   const GoogleMaps({super.key, this.markers});
 
   @override
@@ -62,9 +63,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             zoom: 13.0, // ZOOM DI VENEZIA
             //zoom: 2.0,// ZOOM DI TEST
           ),
-          markers: widget.markers != null
-              ? Set<Marker>.from(widget.markers!)
-              : <Marker>{}, // Add markers if available
+          markers: widget.markers ?? {},
           scrollGesturesEnabled: true,
           zoomGesturesEnabled: true,
           myLocationEnabled: true,
