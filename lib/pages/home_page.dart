@@ -354,7 +354,9 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       pickedFile = null;
+      uploadTask = null;
     });
+
   }
 
   Widget buildProgress() => StreamBuilder<TaskSnapshot>(
@@ -379,6 +381,7 @@ class _HomePageState extends State<HomePage> {
               )
             ]),
           );
+
         } else {
           return const SizedBox(height: 50);
         }
@@ -392,14 +395,22 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if(pickedFile == null)
             ElevatedButton(
                 onPressed: selectFile,
-                child: const Icon(Icons.add_a_photo_outlined)),
+                child: const Icon(Icons.add_a_photo_outlined)
+            ),
+            if(pickedFile != null)
             ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
                 onPressed: uploadFile,
-                child: const Icon(Icons.cloud_upload_outlined)),
+                child: const Icon(Icons.cloud_upload_outlined)
+            ),
           ],
         ),
+        if (uploadTask != null && pickedFile != null)
         buildProgress()
       ],
     );
