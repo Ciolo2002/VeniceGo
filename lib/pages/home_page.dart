@@ -158,12 +158,12 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: TextField(
                   obscureText: true,
-                  onSubmitted: (value) {
+                  onChanged: (value) {
                     newPassword = value;
                   },
                   decoration: const InputDecoration(
                     border : OutlineInputBorder(),
-                    hintText: "New Password",
+                    hintText: "Your Password",
                   ),
                 )
               )
