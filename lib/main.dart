@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: const [
                   GoogleMaps(),
-                  LocationSearchScreen(),
+                  // LocationSearchScreen(),
                   Text('Saved'),
                   WidgetTree(),
                 ],

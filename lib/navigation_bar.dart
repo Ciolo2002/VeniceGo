@@ -39,11 +39,11 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
             selectedIcon: Icon(Icons.home),
             label: 'Dashboard',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.search),
-            selectedIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
+          // NavigationDestination(
+          //  icon: Icon(Icons.search),
+          //  selectedIcon: Icon(Icons.search),
+          //  label: 'Search',
+          // ),
           NavigationDestination(
             icon: Icon(Icons.bookmark),
             selectedIcon: Icon(Icons.bookmark),
