@@ -100,6 +100,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.green[700],
@@ -122,6 +123,14 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     ),
                   ),
                 ),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      showListView = !showListView;
+                    });
+                  },
+                  icon: Icon(Icons.remove),
+                )
               ],
             ),
             Row(
