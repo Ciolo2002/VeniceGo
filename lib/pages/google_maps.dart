@@ -14,12 +14,10 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import '../locations.dart' as locations;
 import '../json_utility.dart' show Place;
 
 class GoogleMaps extends StatefulWidget {
-  final Set<Marker>? markers;
-  const GoogleMaps({super.key, this.markers});
+  const GoogleMaps({super.key});
 
   @override
   State<GoogleMaps> createState() => _MyGoogleMapsState();
@@ -30,35 +28,12 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   List<Place> _suggestions = [];
   bool showListView = false;
   String _filter = '';
-  final locations.LatLng veniceGeoCoords =
-      locations.LatLng(lat: 45.4371908, lng: 12.3345898);
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
-
+  final Set<Marker> _markers = {};
   _setFilter(String filter) {
     setState(() {
       _filter = filter;
     });
-  }
-
-  /// When the map is created, we add some default markers if we do not have any.
-  Future<void> _onMapCreated(GoogleMapController controller) async {
-    if (widget.markers != null && widget.markers!.isEmpty) {
-      final locations.Locations googleOffices =
-          await locations.getGoogleOffices();
-      setState(() {
-        for (final office in googleOffices.offices) {
-          final marker = Marker(
-            markerId: MarkerId(office.name),
-            position: LatLng(office.lat, office.lng),
-            infoWindow: InfoWindow(
-              title: office.name,
-              snippet: office.address,
-            ),
-          );
-          widget.markers!.add(marker);
-        }
-      });
-    }
   }
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
@@ -75,8 +50,9 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
           'places.displayName,places.formattedAddress,places.location,places.id,places.name',
     };
     // TODO: find how much i can stretch the radius before getting garbage (results from random places)
+    // TODO: pretty print this... it's a mess
     String body =
-        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${veniceGeoCoords.lat}, "longitude" : ${veniceGeoCoords.lng} },  "radius": 500}}} ';
+        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} },  "radius": 500}}} ';
 
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
@@ -91,6 +67,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   Future<void> getMarkers(String userInput) async {
     final dynamic jsonMarkers = await _getMarkers(userInput);
     List<dynamic> placesList = jsonMarkers['places'];
+    // TODO: Ottimizzare: evitare di passare da lista a set e fare tutto con un set.
     setState(() {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
@@ -129,13 +106,14 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                       showListView = !showListView;
                     });
                   },
-                  icon: Icon(Icons.remove),
+                  icon: const Icon(Icons.remove),
                 )
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                // TODO: update _setFilter with the new API filters.
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => _setFilter('food'),
@@ -182,23 +160,13 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     return ListTile(
                       title: Text(_suggestions[index].displayName.text),
                       onTap: () {
-                        Set<Marker> markers = {};
-                        markers.add(Place.toMarker(_suggestions[index]));
                         setState(() {
+                          // If we decide to show only the result of the current search uncomment
+                          // the following line
+                          // _markers.clear();
+                          _markers.add(Place.toMarker(_suggestions[index]));
                           showListView = false;
                         });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoogleMap(
-                              markers: markers,
-                              initialCameraPosition: CameraPosition(
-                                  target: LatLng(
-                                      veniceGeoCoords.lat, veniceGeoCoords.lng),
-                                  zoom: 13.0),
-                            ),
-                          ),
-                        );
                       },
                     );
                   },
@@ -206,14 +174,12 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               ),
             Expanded(
               child: GoogleMap(
-                onMapCreated: _onMapCreated,
+                onMapCreated: null,
                 initialCameraPosition: CameraPosition(
-                  //target: LatLng(0,0), //COORDINATE DI TEST,
-                  target: _veniceGeoCoords, //COORDINATE DI VENEZIA
-                  zoom: 13.0, // ZOOM DI VENEZIA
-                  //zoom: 2.0,// ZOOM DI TEST
+                  target: _veniceGeoCoords,
+                  zoom: 13.0,
                 ),
-                markers: widget.markers ?? {},
+                markers: _markers,
                 scrollGesturesEnabled: true,
                 zoomGesturesEnabled: true,
                 myLocationEnabled: true,
