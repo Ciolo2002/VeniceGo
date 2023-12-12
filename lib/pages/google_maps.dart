@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:venice_go/pages/details_page.dart';
 import '../json_utility.dart' show Place;
 
 class GoogleMaps extends StatefulWidget {
@@ -72,11 +73,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
       _markers.clear();
-      _markers.addAll(Set<Marker>.from(
-          _suggestions.map((place) => Place.toMarker(place))));
+      _markers.addAll(
+          Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
     });
-    }
-  
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,8 +119,17 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               children: [
                 // TODO: update _setFilter with the new API filters.
                 Expanded(
+                  // uso improptio del filter button per testare il Navigator push di un place ID verso la details page
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('food'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailsPage(
+                              placeID: 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'),
+                        ),
+                      );
+                    },
                     child: const Text('F'),
                   ),
                 ),
