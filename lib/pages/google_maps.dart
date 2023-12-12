@@ -71,8 +71,12 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     setState(() {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
+      _markers.clear();
+      _markers.addAll(Set<Marker>.from(
+          _suggestions.map((place) => Place.toMarker(place))));
     });
-  }
+    }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -161,9 +165,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                       title: Text(_suggestions[index].displayName.text),
                       onTap: () {
                         setState(() {
-                          // If we decide to show only the result of the current search uncomment
-                          // the following line
-                          // _markers.clear();
+                          _markers.clear();
                           _markers.add(Place.toMarker(_suggestions[index]));
                           showListView = false;
                         });
