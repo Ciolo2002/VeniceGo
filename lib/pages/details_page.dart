@@ -21,7 +21,7 @@ class _DetailsPageState extends State<DetailsPage> {
   // ID test, vedere come riceverlo dinamicamente dal marker successivamente
   late String placeID;
   dynamic details;
-  String imageUrl = '';
+  List<String> imageUrl = [];
 
   @override
   void initState() {
@@ -51,8 +51,8 @@ class _DetailsPageState extends State<DetailsPage> {
   Future<dynamic> getPhotos(String name) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     // API call section
-    const int maxHeightpx = 2000;
-    const int maxWidthpx = 2000;
+    const int maxHeightpx = 1000;
+    const int maxWidthpx = 1000;
     String url =
         'https://places.googleapis.com/v1/$name/media?maxHeightPx=$maxHeightpx&maxWidthPx=$maxWidthpx&key=$apiKey';
     print(url);
@@ -62,13 +62,14 @@ class _DetailsPageState extends State<DetailsPage> {
           'Failed to fetch photo. Error ${response.statusCode}: ${response.reasonPhrase}');
     }
     setState(() {
-      imageUrl = url;
+      imageUrl.add(url);
     });
   }
 
   Future<void> getDetails(String id) async {
     dynamic jsonDetails = await _getDetails(id);
-    getPhotos(jsonDetails['photos'][1]['name']);
+    for (int i = 0; i < jsonDetails['photos'].length; i++)
+      getPhotos(jsonDetails['photos'][i]['name']);
     setState(() {
       details = PlaceDetails.fromJson(jsonDetails);
     });
@@ -92,8 +93,20 @@ class _DetailsPageState extends State<DetailsPage> {
                     details.displayName.text,
                     textAlign: TextAlign.center,
                   ),
-                  imageUrl != ''
-                      ? Image.network(imageUrl)
+                  //imageUrl.isNotEmpty
+                  //    ? Image.network(imageUrl.elementAt(0))
+                  //    : CircularProgressIndicator(),
+                  imageUrl.isNotEmpty
+                      ? SizedBox(
+                          height: 300,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: imageUrl.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Image.network(imageUrl.elementAt(index));
+                            },
+                          ),
+                        )
                       : CircularProgressIndicator(),
                 ],
               )
