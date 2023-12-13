@@ -21,6 +21,7 @@ class _DetailsPageState extends State<DetailsPage> {
   // ID test, vedere come riceverlo dinamicamente dal marker successivamente
   late String placeID;
   dynamic details;
+  String imageUrl = '';
 
   @override
   void initState() {
@@ -31,14 +32,13 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<dynamic> _getDetails(String id) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
-
     // API call section
     String url = 'https://places.googleapis.com/v1/places/$id';
     print(url);
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'id,displayName',
+      'X-Goog-FieldMask': 'id,displayName,photos',
     };
 
     http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -48,9 +48,27 @@ class _DetailsPageState extends State<DetailsPage> {
     return json.decode(response.body);
   }
 
+  Future<dynamic> getPhotos(String name) async {
+    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
+    // API call section
+    const int maxHeightpx = 2000;
+    const int maxWidthpx = 2000;
+    String url =
+        'https://places.googleapis.com/v1/$name/media?maxHeightPx=$maxHeightpx&maxWidthPx=$maxWidthpx&key=$apiKey';
+    print(url);
+    http.Response response = await http.get(Uri.parse(url));
+    if (response.statusCode != 200) {
+      throw Exception(
+          'Failed to fetch photo. Error ${response.statusCode}: ${response.reasonPhrase}');
+    }
+    setState(() {
+      imageUrl = url;
+    });
+  }
+
   Future<void> getDetails(String id) async {
     dynamic jsonDetails = await _getDetails(id);
-    print(jsonDetails);
+    getPhotos(jsonDetails['photos'][1]['name']);
     setState(() {
       details = PlaceDetails.fromJson(jsonDetails);
     });
@@ -74,8 +92,9 @@ class _DetailsPageState extends State<DetailsPage> {
                     details.displayName.text,
                     textAlign: TextAlign.center,
                   ),
-                  Text(details.displayName.languageCode,
-                      textAlign: TextAlign.center),
+                  imageUrl != ''
+                      ? Image.network(imageUrl)
+                      : CircularProgressIndicator(),
                 ],
               )
             : const CircularProgressIndicator(), // Show loading circle while retrieving data

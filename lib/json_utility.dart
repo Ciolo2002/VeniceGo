@@ -57,15 +57,70 @@ class PlaceDetails {
   PlaceDetails({
     required this.id,
     required this.displayName,
+    required this.photos,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
+    List<Photo> photos = <Photo>[];
+    if (json['photos'] != null) {
+      photos = (json['photos'] as List<dynamic>)
+          .map((photoJson) => Photo.fromJson(photoJson))
+          .toList();
+    }
     return PlaceDetails(
       id: json['id'] as String,
       displayName: DisplayName.fromJson(json['displayName']),
+      photos: photos,
     );
   }
 
   final String id;
   final DisplayName displayName;
+  final List<Photo> photos;
+}
+
+class Photo {
+  Photo({
+    required this.name,
+    required this.widthPx,
+    required this.heightPx,
+    required this.authorAttributions,
+  });
+
+  factory Photo.fromJson(Map<String, dynamic> json) {
+    return Photo(
+      name: json['name'] as String,
+      widthPx: json['widthPx'] as int,
+      heightPx: json['heightPx'] as int,
+      authorAttributions: (json['authorAttributions'] as List<dynamic>)
+          .map((attributionJson) => AuthorAttribution.fromJson(attributionJson))
+          .toList(),
+      // Parse other fields as needed
+    );
+  }
+
+  final String name;
+  final int widthPx;
+  final int heightPx;
+  final List<AuthorAttribution> authorAttributions;
+}
+
+class AuthorAttribution {
+  AuthorAttribution({
+    required this.displayName,
+    required this.uri,
+    required this.photoUri,
+  });
+
+  factory AuthorAttribution.fromJson(Map<String, dynamic> json) {
+    return AuthorAttribution(
+      displayName: json['displayName'] as String,
+      uri: json['uri'] as String,
+      photoUri: json['photoUri'] as String,
+    );
+  }
+
+  final String displayName;
+  final String uri;
+  final String photoUri;
 }

@@ -126,7 +126,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailsPage(
-                              placeID: 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'),
+                              placeID: 'ChIJpWw4lNCxfkcR_9t-EkZkUhg'),
                         ),
                       );
                     },
