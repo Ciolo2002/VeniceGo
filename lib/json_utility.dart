@@ -8,8 +8,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart'
 class DisplayName {
   DisplayName(this.text, this.languageCode);
   DisplayName.fromJson(Map<String, dynamic> json)
-      : text = json['text'] as String,
-        languageCode = json['languageCode'] as String;
+      : text = json['text'] as String? ?? '',
+        languageCode = json['languageCode'] as String? ?? '';
   final String text;
   final String languageCode;
 }
@@ -51,4 +51,21 @@ class Place {
       throw Exception("Error while converting Place to Marker: $e");
     }
   }
+}
+
+class PlaceDetails {
+  PlaceDetails({
+    required this.id,
+    required this.displayName,
+  });
+
+  factory PlaceDetails.fromJson(Map<String, dynamic> json) {
+    return PlaceDetails(
+      id: json['id'] as String,
+      displayName: DisplayName.fromJson(json['displayName']),
+    );
+  }
+
+  final String id;
+  final DisplayName displayName;
 }

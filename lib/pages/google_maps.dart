@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:venice_go/pages/details_page.dart';
 import '../json_utility.dart' show Place;
 
 class GoogleMaps extends StatefulWidget {
@@ -104,6 +105,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     setState(() {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
+      _markers.clear();
       _markers.addAll(
           Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
     });
@@ -150,10 +152,18 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
+                  // uso improptio del filter button per testare il Navigator push di un place ID verso la details page
                   child: ElevatedButton(
-                    onPressed: () => getMarkers('restaurant'),
-                    child: const Icon(Icons.restaurant,
-                        semanticLabel: 'Restaurant'),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailsPage(
+                              placeID: 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'),
+                        ),
+                      );
+                    },
+                    child: const Text('F'),
                   ),
                 ),
                 Expanded(
