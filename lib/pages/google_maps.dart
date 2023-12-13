@@ -27,18 +27,13 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   late GoogleMapController mapController;
   List<Place> _suggestions = [];
   bool showListView = false;
-  String _filter = '';
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
   final Set<Marker> _markers = {};
-  _setFilter(String filter) {
-    setState(() {
-      _filter = filter;
-    });
-  }
+  String _userInput = '';
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
   /// Places API.
-  Future<dynamic> _getMarkers(String userInput) async {
+  Future<dynamic> _getMarkers(String userInput, [String? filter]) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
 
     // API call section
@@ -52,7 +47,12 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     // TODO: find how much i can stretch the radius before getting garbage (results from random places)
     // TODO: pretty print this... it's a mess
     String body =
-        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} },  "radius": 500}}} ';
+        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} },  "radius": 500}}';
+    if (filter != null && filter != '') {
+      body += ',"includedType": "$filter"}';
+    } else {
+      body += '}';
+    }
 
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
@@ -64,19 +64,50 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   }
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
-  Future<void> getMarkers(String userInput) async {
-    final dynamic jsonMarkers = await _getMarkers(userInput);
+  Future<void> getMarkers(String userInput, [String? filter]) async {
+    final dynamic jsonMarkers = await _getMarkers(userInput, filter);
+    // This is a hacky way of printing the dialog to the user,
+    // ideally we shouldn't call showDialog() from async methods
+    // and the Dart compiler shouldn't allow it instead of just suggesting it, but hey ...
+    // it works ¯\_(ツ)_/¯
+    if (jsonMarkers.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const AlertDialog(
+            title: Text("Warning"),
+            titleTextStyle: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontSize: 20,
+            ),
+            backgroundColor: Colors.greenAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+            ),
+            content: Text(
+                "No results found, please modify your search text or your filter."),
+          );
+        },
+      );
+
+      setState(() {
+        _markers.clear();
+      });
+      return;
+    }
+
     List<dynamic> placesList = jsonMarkers['places'];
-    // TODO: Ottimizzare: evitare di passare da lista a set e fare tutto con un set.
+    // Using a List<dynamic> makes it impossible to not use a temporary List<Place> variable
+    // because the map() method is not available for List<dynamic>
+
     setState(() {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
-      _markers.clear();
-      _markers.addAll(Set<Marker>.from(
-          _suggestions.map((place) => Place.toMarker(place))));
+      _markers.addAll(
+          Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
     });
-    }
-  
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +128,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                       getMarkers(input);
                       setState(() {
                         showListView = true;
+                        _userInput = input;
                       });
                     },
                     decoration: const InputDecoration(
@@ -117,41 +149,44 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // TODO: update _setFilter with the new API filters.
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('food'),
-                    child: const Text('F'),
+                    onPressed: () => getMarkers('restaurant'),
+                    child: const Icon(Icons.restaurant,
+                        semanticLabel: 'Restaurant'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('museum'),
-                    child: const Text('M'),
+                    onPressed: () => getMarkers(_userInput, 'museum'),
+                    child: const Icon(Icons.museum, semanticLabel: 'Museum'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('night_club'),
-                    child: const Text('N'),
+                    onPressed: () => getMarkers(_userInput, 'night_club'),
+                    child: const Icon(Icons.celebration,
+                        semanticLabel: 'Night Club'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('park'),
-                    child: const Text('P'),
+                    onPressed: () => getMarkers(_userInput, 'park'),
+                    child: const Icon(Icons.park, semanticLabel: 'Park'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter('supermarket'),
-                    child: const Text('S'),
+                    onPressed: () => getMarkers(_userInput, 'supermarket'),
+                    child: const Icon(Icons.shopping_cart,
+                        semanticLabel: 'Supermarket'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _setFilter(''),
-                    child: const Text('E'),
+                    onPressed: () => getMarkers(_userInput),
+                    child: const Icon(Icons.backspace,
+                        semanticLabel: 'Remove suggestion'),
                   ),
                 ),
               ],
