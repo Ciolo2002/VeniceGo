@@ -45,10 +45,11 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       'X-Goog-FieldMask':
           'places.displayName,places.formattedAddress,places.location,places.id,places.name',
     };
-    // TODO: find how much i can stretch the radius before getting garbage (results from random places)
-    // TODO: pretty print this... it's a mess
+    // FIXME: find how much i can stretch the radius before getting garbage (results from random places)
+
+    //FIXME: fix use of locationRestriction instead of locationBias
     String body =
-        '{"textQuery" : "$userInput", "locationBias" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} },  "radius": 500}}';
+        '{"textQuery" : "$userInput", "locationRestriction" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} }, "radius":2000 }}';
     if (filter != null && filter != '') {
       body += ',"includedType": "$filter"}';
     } else {
@@ -154,6 +155,11 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               // DI QUELLO CHE VOGLIO VEDERE E PREMERE IN AUTOMATICO L'INVIO PER FARE LA CHIAMTA API
               //ES. CLICCO LO SHOPPING-CART E MI FA LA RICERCA DI SUPERMARKET
               // SCRIVENDO NELLA BARRA DI RICERCA "SUPERMERCATI"
+              // TODO TRAFROMARE L'ICONA DEL - PER NASCONDERE IN "LENTE DI INGRANDIMENTO" QUANDO IL TESTO è NASCOSTO
+              // il click sulla lente di ingrandimento equivale a premenere invio, deve funzionare anche con l'invio della tastiera
+
+            //TODO SE NON HO RISULTATI FAR COMPARIRE UN QUALCOSA CHE DICA CHE NON CI SONO RISULTATI
+
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
@@ -201,7 +207,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                   child: ElevatedButton(
                     onPressed: () => getMarkers(_userInput),
                     child: const Icon(Icons.backspace,
-                        semanticLabel: 'Remove suggestion'),
+                        semanticLabel: 'Remove suggestion'), //TODO POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
                   ),
                 ),
               ],
