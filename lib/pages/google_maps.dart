@@ -149,6 +149,11 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               ],
             ),
             Row(
+              //TODO FARE IN MODO CHE I CLICK DELLE CATEGORIE VADANO
+              // A PRECOMPILARE LA RICERCA CON IL TESTO
+              // DI QUELLO CHE VOGLIO VEDERE E PREMERE IN AUTOMATICO L'INVIO PER FARE LA CHIAMTA API
+              //ES. CLICCO LO SHOPPING-CART E MI FA LA RICERCA DI SUPERMARKET
+              // SCRIVENDO NELLA BARRA DI RICERCA "SUPERMERCATI"
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
