@@ -52,7 +52,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     LatLng bottomLeftVenice =
         const LatLng(45.337379185569965, 12.282943569192572);
     LatLng topRightVenice = const LatLng(45.4736707944578, 12.436851132952091);
-    String body = '''{
+    String body = '''
+    {
           "textQuery" : "$userInput",  
           "locationRestriction": {
             "rectangle": {
@@ -85,6 +86,9 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     // ideally we shouldn't call showDialog() from async methods
     // and the Dart compiler shouldn't allow it instead of just suggesting it, but hey ...
     // it works ¯\_(ツ)_/¯
+    // Also it's becuase post request to Google Maps Places API returns Future<dynamic>
+    // and rewriting the method to be synchronous would be too much work for now.
+    // TODO: rewrite this method to be synchronous
     if (jsonMarkers.isEmpty) {
       showDialog(
         context: context,
