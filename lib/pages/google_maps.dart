@@ -34,7 +34,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
   /// Places API.
-  Future<dynamic> _getMarkers(String userInput, [String? filter]) async {
+  Future<dynamic> _getMarkers(String userInput) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
 
     // API call section
@@ -45,16 +45,29 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       'X-Goog-FieldMask':
           'places.displayName,places.formattedAddress,places.location,places.id,places.name',
     };
-    // FIXME: find how much i can stretch the radius before getting garbage (results from random places)
-
-    //FIXME: fix use of locationRestriction instead of locationBias
-    String body =
-        '{"textQuery" : "$userInput", "locationRestriction" : { "circle": { "center": { "latitude" : ${_veniceGeoCoords.latitude}, "longitude" : ${_veniceGeoCoords.longitude} }, "radius":2000 }}';
-    if (filter != null && filter != '') {
-      body += ',"includedType": "$filter"}';
-    } else {
-      body += '}';
+    // Hand picked coordinates for Venice, ideally there should be already online coords
+    // as a rectanble and I should just use them, but I couldn't find any.
+    // These coords also take into account the fact that Venice is not a rectangle, thus we also have
+    // Murano and Burano in the rectangle. Also Lido...
+    LatLng bottomLeftVenice =
+        const LatLng(45.337379185569965, 12.282943569192572);
+    LatLng topRightVenice = const LatLng(45.4736707944578, 12.436851132952091);
+    String body = '''{
+          "textQuery" : "$userInput",  
+          "locationRestriction": {
+            "rectangle": {
+              "low": {
+                "latitude": ${bottomLeftVenice.latitude},
+                "longitude": ${bottomLeftVenice.longitude}
+              },
+              "high": {
+                "latitude": ${topRightVenice.latitude},
+                "longitude": ${topRightVenice.longitude}
+              }
+            }
+          }
     }
+    ''';
 
     http.Response response =
         await http.post(Uri.parse(url), headers: headers, body: body);
@@ -66,8 +79,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   }
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
-  Future<void> getMarkers(String userInput, [String? filter]) async {
-    final dynamic jsonMarkers = await _getMarkers(userInput, filter);
+  Future<void> getMarkers(String userInput) async {
+    final dynamic jsonMarkers = await _getMarkers(userInput);
     // This is a hacky way of printing the dialog to the user,
     // ideally we shouldn't call showDialog() from async methods
     // and the Dart compiler shouldn't allow it instead of just suggesting it, but hey ...
@@ -87,8 +100,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20)),
             ),
-            content: Text(
-                "No results found, please modify your search text or your filter."),
+            content: Text("No results found, please modify your search text."),
           );
         },
       );
@@ -150,15 +162,11 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               ],
             ),
             Row(
-              //TODO FARE IN MODO CHE I CLICK DELLE CATEGORIE VADANO
-              // A PRECOMPILARE LA RICERCA CON IL TESTO
-              // DI QUELLO CHE VOGLIO VEDERE E PREMERE IN AUTOMATICO L'INVIO PER FARE LA CHIAMTA API
-              //ES. CLICCO LO SHOPPING-CART E MI FA LA RICERCA DI SUPERMARKET
               // SCRIVENDO NELLA BARRA DI RICERCA "SUPERMERCATI"
               // TODO TRAFROMARE L'ICONA DEL - PER NASCONDERE IN "LENTE DI INGRANDIMENTO" QUANDO IL TESTO è NASCOSTO
               // il click sulla lente di ingrandimento equivale a premenere invio, deve funzionare anche con l'invio della tastiera
 
-            //TODO SE NON HO RISULTATI FAR COMPARIRE UN QUALCOSA CHE DICA CHE NON CI SONO RISULTATI
+              //TODO SE NON HO RISULTATI FAR COMPARIRE UN QUALCOSA CHE DICA CHE NON CI SONO RISULTATI
 
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -179,26 +187,26 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers(_userInput, 'museum'),
+                    onPressed: () => getMarkers('Museum'),
                     child: const Icon(Icons.museum, semanticLabel: 'Museum'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers(_userInput, 'night_club'),
+                    onPressed: () => getMarkers('Night Club'),
                     child: const Icon(Icons.celebration,
                         semanticLabel: 'Night Club'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers(_userInput, 'park'),
+                    onPressed: () => getMarkers('Park'),
                     child: const Icon(Icons.park, semanticLabel: 'Park'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers(_userInput, 'supermarket'),
+                    onPressed: () => getMarkers('Supermarket'),
                     child: const Icon(Icons.shopping_cart,
                         semanticLabel: 'Supermarket'),
                   ),
@@ -207,7 +215,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                   child: ElevatedButton(
                     onPressed: () => getMarkers(_userInput),
                     child: const Icon(Icons.backspace,
-                        semanticLabel: 'Remove suggestion'), //TODO POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
+                        semanticLabel:
+                            'Remove suggestion'), //TODO POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
                   ),
                 ),
               ],
