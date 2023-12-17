@@ -110,10 +110,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       });
       return;
     }
-
-    List<dynamic> placesList = jsonMarkers['places'];
     // Using a List<dynamic> makes it impossible to not use a temporary List<Place> variable
     // because the map() method is not available for List<dynamic>
+
+    List<dynamic> placesList = jsonMarkers['places'];
 
     setState(() {
       _suggestions =
@@ -143,6 +143,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                       getMarkers(input);
                       setState(() {
                         showListView = true;
+                      });
+                    },
+                    onChanged: (input) {
+                      setState(() {
                         _userInput = input;
                       });
                     },
@@ -154,24 +158,21 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 IconButton(
                   onPressed: () {
                     setState(() {
+                      if (!showListView) {
+                        getMarkers(_userInput);
+                      }
                       showListView = !showListView;
                     });
                   },
-                  icon: const Icon(Icons.remove),
+                  icon: Icon(showListView ? Icons.remove : Icons.search),
                 )
               ],
             ),
             Row(
-              // SCRIVENDO NELLA BARRA DI RICERCA "SUPERMERCATI"
-              // TODO TRAFROMARE L'ICONA DEL - PER NASCONDERE IN "LENTE DI INGRANDIMENTO" QUANDO IL TESTO è NASCOSTO
-              // il click sulla lente di ingrandimento equivale a premenere invio, deve funzionare anche con l'invio della tastiera
-
-              //TODO SE NON HO RISULTATI FAR COMPARIRE UN QUALCOSA CHE DICA CHE NON CI SONO RISULTATI
-
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-                  // uso improptio del filter button per testare il Navigator push di un place ID verso la details page
+                  // uso improprio del filter button per testare il Navigator push di un place ID verso la details page
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -213,10 +214,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers(_userInput),
+                    onPressed: () => {},
                     child: const Icon(Icons.backspace,
                         semanticLabel:
-                            'Remove suggestion'), //TODO POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
+                            'Remove suggestion'), //TODO: POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
                   ),
                 ),
               ],
