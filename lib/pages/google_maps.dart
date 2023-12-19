@@ -31,6 +31,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
   final Set<Marker> _markers = {};
   String _userInput = '';
+  final TextEditingController _controllerUserInput = TextEditingController();
 
   /// Uses the [userInput] String parameter to obtain a list of places from Google Maps
   /// Places API.
@@ -127,7 +128,13 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
           Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
     });
   }
-
+  void _buttonSearchPressed(String userInput) {
+    _controllerUserInput.text = userInput;
+    setState(() {
+      getMarkers(userInput);
+      showListView = false;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -143,6 +150,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: _controllerUserInput,
                     onSubmitted: (input) {
                       getMarkers(input);
                       setState(() {
@@ -192,26 +200,26 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers('Museum'),
+                    onPressed: () => {_buttonSearchPressed("Museum")},
                     child: const Icon(Icons.museum, semanticLabel: 'Museum'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers('Night Club'),
+                    onPressed: () => {_buttonSearchPressed("Night Club")},
                     child: const Icon(Icons.celebration,
                         semanticLabel: 'Night Club'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers('Park'),
+                    onPressed: () => {_buttonSearchPressed("Park")},
                     child: const Icon(Icons.park, semanticLabel: 'Park'),
                   ),
                 ),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => getMarkers('Supermarket'),
+                    onPressed: () => {_buttonSearchPressed("Supermarket")},
                     child: const Icon(Icons.shopping_cart,
                         semanticLabel: 'Supermarket'),
                   ),
@@ -262,5 +270,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
         ),
       ),
     );
+  }
+  @override
+  void dispose() {
+    _controllerUserInput.dispose();
+    super.dispose();
   }
 }
