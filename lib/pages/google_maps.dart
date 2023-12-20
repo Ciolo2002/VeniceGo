@@ -106,8 +106,10 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
       _markers.clear();
-      _markers.addAll(
-          Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
+      _markers
+          .addAll(Set<Marker>.from(_suggestions.map((place) => Place.toMarker(
+                place,
+              ))));
     });
   }
 
@@ -159,7 +161,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailsPage(
-                              placeID: 'ChIJpWw4lNCxfkcR_9t-EkZkUhg'),
+                              placeID: 'ChIJ3fdez8exfkcRw1cqbuF4vbQ'),
                         ),
                       );
                     },

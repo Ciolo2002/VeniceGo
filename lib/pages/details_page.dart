@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:venice_go/json_utility.dart' show PlaceDetails;
+import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
 
-//TODO: fare le chiamate per ottenere le foto
 //TODO: capire quali dati richiedere e implementarele nella chiamata
 //TODO: creare il Layout per accogliere i dati
+//TODO: gestione in caso di dati assenti
 
 class DetailsPage extends StatefulWidget {
   final String placeID;
@@ -38,7 +38,7 @@ class _DetailsPageState extends State<DetailsPage> {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'id,displayName,photos',
+      'X-Goog-FieldMask': 'id,displayName,photos,shortFormattedAddress,reviews',
     };
 
     http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -55,7 +55,6 @@ class _DetailsPageState extends State<DetailsPage> {
     const int maxWidthpx = 1000;
     String url =
         'https://places.googleapis.com/v1/$name/media?maxHeightPx=$maxHeightpx&maxWidthPx=$maxWidthpx&key=$apiKey';
-    print(url);
     http.Response response = await http.get(Uri.parse(url));
     if (response.statusCode != 200) {
       throw Exception(
@@ -68,11 +67,168 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Future<void> getDetails(String id) async {
     dynamic jsonDetails = await _getDetails(id);
-    for (int i = 0; i < jsonDetails['photos'].length; i++)
-      getPhotos(jsonDetails['photos'][i]['name']);
+    if (jsonDetails['photos'] != null) {
+      imageUrl.clear();
+      for (int i = 0; i < jsonDetails['photos'].length; i++)
+        getPhotos(jsonDetails['photos'][i]['name']);
+    } else {
+      imageUrl.add(
+          'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png');
+    }
     setState(() {
       details = PlaceDetails.fromJson(jsonDetails);
     });
+  }
+
+  // Method to show the enlarged image in a dialog
+  void _showEnlargedImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop(); // Close the dialog on tap
+            },
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.contain, // Adjust the image size in the dialog
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _imageGallery() {
+    return Card(
+      elevation: 4.0,
+      child: SizedBox(
+        height: 200,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: imageUrl.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Padding(
+                padding: EdgeInsets.only(right: 8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    _showEnlargedImage(imageUrl.elementAt(index));
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.network(
+                      imageUrl.elementAt(index),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ));
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Text(
+            'Reviews',
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        if (details != null && details.reviews.isNotEmpty)
+          Card(
+            margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+            elevation: 4.0,
+            child: ListTile(
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${details.reviews[0].authorName}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Rating: ${details.reviews[0].rating.toString()}',
+                        style: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              subtitle: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  '${details.reviews[0].text}',
+                  style: TextStyle(
+                      fontSize: 16.0), // Adjust the font size as needed
+                ),
+              ),
+            ),
+          ),
+        if (details != null && details.reviews.length > 1)
+          ExpansionTile(
+            title: Text(
+              'Show all reviews',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            children: [
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: details.reviews.length - 1,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildReviewCard(details.reviews[index + 1]);
+                },
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Widget _buildReviewCard(Review review) {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+      elevation: 2.0,
+      child: ListTile(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${review.authorName}',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Rating: ${review.rating.toString()}',
+              style: TextStyle(
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            '${review.text}',
+            style: TextStyle(fontSize: 16.0), // Adjust the font size as needed
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -83,34 +239,49 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
       body: Center(
         child: details != null
-            ? Column(
-                children: [
-                  Text(
-                    details.id ?? 'Name not found',
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    details.displayName.text,
-                    textAlign: TextAlign.center,
-                  ),
-                  //imageUrl.isNotEmpty
-                  //    ? Image.network(imageUrl.elementAt(0))
-                  //    : CircularProgressIndicator(),
-                  imageUrl.isNotEmpty
-                      ? SizedBox(
-                          height: 300,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: imageUrl.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Image.network(imageUrl.elementAt(index));
-                            },
+            ? SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Card(
+                        elevation: 4.0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                details.displayName.text,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                details.address,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                            ],
                           ),
-                        )
-                      : CircularProgressIndicator(),
-                ],
+                        ),
+                      ),
+                      SizedBox(height: 24.0),
+                      imageUrl.isNotEmpty
+                          ? _imageGallery()
+                          : CircularProgressIndicator(),
+                      SizedBox(height: 24.0),
+                      _buildReviewsSection(),
+                    ],
+                  ),
+                ),
               )
-            : const CircularProgressIndicator(), // Show loading circle while retrieving data
+            : Center(child: CircularProgressIndicator()),
       ),
     );
   }

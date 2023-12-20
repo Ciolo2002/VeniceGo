@@ -58,6 +58,8 @@ class PlaceDetails {
     required this.id,
     required this.displayName,
     required this.photos,
+    required this.address,
+    required this.reviews,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -67,16 +69,51 @@ class PlaceDetails {
           .map((photoJson) => Photo.fromJson(photoJson))
           .toList();
     }
+
+    List<Review> reviews = <Review>[];
+    if (json['reviews'] != null) {
+      reviews = (json['reviews'] as List<dynamic>)
+          .map((reviewJson) => Review.fromJson(reviewJson))
+          .toList();
+    }
+
     return PlaceDetails(
       id: json['id'] as String,
       displayName: DisplayName.fromJson(json['displayName']),
       photos: photos,
+      address: json['shortFormattedAddress'] as String,
+      reviews: reviews,
     );
   }
 
   final String id;
   final DisplayName displayName;
   final List<Photo> photos;
+  final String address;
+  final List<Review> reviews;
+}
+
+class Review {
+  Review({
+    required this.authorName,
+    required this.rating,
+    required this.text,
+    required this.publishTime,
+  });
+
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      authorName: json['authorAttribution']['displayName'] as String,
+      rating: json['rating'] as int,
+      text: json['text']['text'] as String,
+      publishTime: json['relativePublishTimeDescription'] as String,
+    );
+  }
+
+  final String authorName;
+  final int rating;
+  final String text;
+  final String publishTime;
 }
 
 class Photo {
