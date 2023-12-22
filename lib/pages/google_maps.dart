@@ -153,7 +153,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded(
+                /*Expanded(
                   // uso improptio del filter button per testare il Navigator push di un place ID verso la details page
                   child: ElevatedButton(
                     onPressed: () {
@@ -167,7 +167,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     },
                     child: const Text('F'),
                   ),
-                ),
+                ),*/
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => getMarkers(_userInput, 'museum'),
@@ -216,6 +216,16 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                           _markers.add(Place.toMarker(_suggestions[index]));
                           showListView = false;
                         });
+                        // Temporary solution to the problem of routing to the details page
+                        // without having a new button on the map page
+                        // TODO: find a better solution
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return DetailsPage(
+                              placeID: _suggestions[index].id,
+                            );
+                          },
+                        ));
                       },
                     );
                   },
