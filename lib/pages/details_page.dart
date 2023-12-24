@@ -38,7 +38,8 @@ class _DetailsPageState extends State<DetailsPage> {
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'id,displayName,photos,shortFormattedAddress,reviews',
+      'X-Goog-FieldMask':
+          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating',
     };
 
     http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -231,12 +232,72 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
+  Widget _buildOpeningHoursSection() {
+    if (details != null &&
+        details.openingHours != null &&
+        details.openingHours.weekdayDescriptions.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Text(
+              'Opening Hours',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 8.0),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: details.openingHours.weekdayDescriptions.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: Text(
+                  details.openingHours.weekdayDescriptions[index],
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    } else {
+      return SizedBox.shrink();
+    }
+  }
+
+  Widget _buildRating() {
+    if (details != null && details.rating != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.star,
+            color: Colors.yellow,
+            size: 20,
+          ),
+          SizedBox(width: 5),
+          Text(
+            details.rating.toString(),
+            style: TextStyle(fontSize: 16),
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Place Details'),
-      ),
       body: Center(
         child: details != null
             ? SingleChildScrollView(
@@ -272,10 +333,12 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                       ),
                       SizedBox(height: 24.0),
+                      _buildRating(),
                       imageUrl.isNotEmpty
                           ? _imageGallery()
                           : CircularProgressIndicator(),
                       SizedBox(height: 24.0),
+                      _buildOpeningHoursSection(),
                       _buildReviewsSection(),
                     ],
                   ),
