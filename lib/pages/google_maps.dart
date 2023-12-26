@@ -8,14 +8,16 @@
 
 //import 'dart:html';
 
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:venice_go/pages/details_page.dart';
+
 import '../json_utility.dart' show Place;
+import 'details_page.dart';
 
 class GoogleMaps extends StatefulWidget {
   const GoogleMaps({super.key});
@@ -27,7 +29,7 @@ class GoogleMaps extends StatefulWidget {
 class _MyGoogleMapsState extends State<GoogleMaps> {
   late GoogleMapController mapController;
   List<Place> _suggestions = [];
-  bool showListView = false;
+  bool _showListView = false;
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
   final Set<Marker> _markers = {};
   String _userInput = '';
@@ -124,15 +126,17 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       _suggestions =
           List<Place>.from(placesList.map((place) => Place.fromJson(place)));
       _markers.clear();
-      _markers.addAll(
-          Set<Marker>.from(_suggestions.map((place) => Place.toMarker(place))));
+      _markers
+          .addAll(Set<Marker>.from(_suggestions.map((place) => Place.toMarker(
+                place,
+              ))));
     });
   }
   void _buttonSearchPressed(String userInput) {
     _controllerUserInput.text = userInput;
     setState(() {
       getMarkers(userInput);
-      showListView = false;
+      _showListView = false;
     });
   }
   @override
@@ -154,11 +158,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     onSubmitted: (input) {
                       getMarkers(input);
                       setState(() {
-                        showListView = true;
-                      });
-                    },
-                    onChanged: (input) {
-                      setState(() {
+
+                        _showListView = true;
                         _userInput = input;
                       });
                     },
@@ -170,13 +171,14 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      if (!showListView) {
+
+                      if (!_showListView) {
                         getMarkers(_userInput);
                       }
-                      showListView = !showListView;
+                      _showListView = !_showListView;
                     });
                   },
-                  icon: Icon(showListView ? Icons.remove : Icons.search),
+                  icon: Icon(_showListView ? Icons.remove : Icons.search),
                 )
               ],
             ),
@@ -184,6 +186,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
+/*
                   // uso improprio del filter button per testare il Navigator push di un place ID verso la details page
                   child: ElevatedButton(
                     onPressed: () {
@@ -199,6 +202,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                   ),
                 ),
                 Expanded(
+
+ */
                   child: ElevatedButton(
                     onPressed: () => {_buttonSearchPressed("Museum")},
                     child: const Icon(Icons.museum, semanticLabel: 'Museum'),
@@ -234,7 +239,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 ),
               ],
             ),
-            if (showListView)
+            if (_showListView)
               Expanded(
                 child: ListView.builder(
                   itemCount: _suggestions.length,
@@ -242,30 +247,35 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     return ListTile(
                       title: Text(_suggestions[index].displayName.text),
                       onTap: () {
-                        setState(() {
-                          _markers.clear();
-                          _markers.add(Place.toMarker(_suggestions[index]));
-                          showListView = false;
-                        });
+                        _showListView = false;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DetailsPage(
+                                    placeID: _suggestions[index].id)));
                       },
                     );
                   },
                 ),
               ),
             Expanded(
-              child: GoogleMap(
-                onMapCreated: null,
-                initialCameraPosition: CameraPosition(
-                  target: _veniceGeoCoords,
-                  zoom: 13.0,
-                ),
-                markers: _markers,
-                scrollGesturesEnabled: true,
-                zoomGesturesEnabled: true,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    onMapCreated: null,
+                    initialCameraPosition: CameraPosition(
+                      target: _veniceGeoCoords,
+                      zoom: 13.0,
+                    ),
+                    markers: _markers,
+                    scrollGesturesEnabled: true,
+                    zoomGesturesEnabled: true,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         ),
       ),
