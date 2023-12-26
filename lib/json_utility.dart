@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import "../locations.dart" as locations;
 
 import 'package:google_maps_flutter/google_maps_flutter.dart'
@@ -60,6 +62,8 @@ class PlaceDetails {
     required this.photos,
     required this.address,
     required this.reviews,
+    required this.openingHours,
+    required this.rating,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -77,12 +81,29 @@ class PlaceDetails {
           .toList();
     }
 
+    final openingHoursJson = json['currentOpeningHours'];
+    bool openNow = openingHoursJson?['openNow'] ?? false;
+    List<String> weekdayDescriptions = [];
+    if (openingHoursJson != null) {
+      final weekdayDescriptionsJson = openingHoursJson['weekdayDescriptions'];
+      if (weekdayDescriptionsJson != null &&
+          weekdayDescriptionsJson is List<dynamic>) {
+        weekdayDescriptions = weekdayDescriptionsJson.cast<String>();
+      }
+    }
+    final openingHours = OpeningHours(
+      weekdayDescriptions: weekdayDescriptions,
+      openNow: openNow,
+    );
+
     return PlaceDetails(
       id: json['id'] as String,
       displayName: DisplayName.fromJson(json['displayName']),
       photos: photos,
       address: json['shortFormattedAddress'] as String,
       reviews: reviews,
+      openingHours: openingHours,
+      rating: json['rating'] as double,
     );
   }
 
@@ -91,6 +112,8 @@ class PlaceDetails {
   final List<Photo> photos;
   final String address;
   final List<Review> reviews;
+  final OpeningHours openingHours;
+  final double rating;
 }
 
 class Review {
@@ -160,4 +183,14 @@ class AuthorAttribution {
   final String displayName;
   final String uri;
   final String photoUri;
+}
+
+class OpeningHours {
+  OpeningHours({
+    required this.weekdayDescriptions,
+    required this.openNow,
+  });
+
+  final List<String> weekdayDescriptions;
+  final bool openNow;
 }
