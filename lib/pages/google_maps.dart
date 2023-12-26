@@ -8,14 +8,16 @@
 
 //import 'dart:html';
 
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:venice_go/pages/details_page.dart';
+
 import '../json_utility.dart' show Place;
+import 'details_page.dart';
 
 class GoogleMaps extends StatefulWidget {
   const GoogleMaps({super.key});
@@ -27,7 +29,7 @@ class GoogleMaps extends StatefulWidget {
 class _MyGoogleMapsState extends State<GoogleMaps> {
   late GoogleMapController mapController;
   List<Place> _suggestions = [];
-  bool showListView = false;
+  bool _showListView = false;
   final LatLng _veniceGeoCoords = const LatLng(45.4371908, 12.3345898);
   final Set<Marker> _markers = {};
   String _userInput = '';
@@ -131,7 +133,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     onSubmitted: (input) {
                       getMarkers(input);
                       setState(() {
-                        showListView = true;
+                        _showListView = true;
                         _userInput = input;
                       });
                     },
@@ -143,7 +145,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-                      showListView = !showListView;
+                      _showListView = !_showListView;
                     });
                   },
                   icon: const Icon(Icons.remove),
@@ -153,21 +155,6 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                /*Expanded(
-                  // uso improptio del filter button per testare il Navigator push di un place ID verso la details page
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailsPage(
-                              placeID: 'ChIJ3fdez8exfkcRw1cqbuF4vbQ'),
-                        ),
-                      );
-                    },
-                    child: const Text('F'),
-                  ),
-                ),*/
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => getMarkers(_userInput, 'museum'),
@@ -203,7 +190,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 ),
               ],
             ),
-            if (showListView)
+            if (_showListView)
               Expanded(
                 child: ListView.builder(
                   itemCount: _suggestions.length,
@@ -211,40 +198,35 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     return ListTile(
                       title: Text(_suggestions[index].displayName.text),
                       onTap: () {
-                        setState(() {
-                          _markers.clear();
-                          _markers.add(Place.toMarker(_suggestions[index]));
-                          showListView = false;
-                        });
-                        // Temporary solution to the problem of routing to the details page
-                        // without having a new button on the map page
-                        // TODO: find a better solution
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return DetailsPage(
-                              placeID: _suggestions[index].id,
-                            );
-                          },
-                        ));
+                        _showListView = false;
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => DetailsPage(
+                                    placeID: _suggestions[index].id)));
                       },
                     );
                   },
                 ),
               ),
             Expanded(
-              child: GoogleMap(
-                onMapCreated: null,
-                initialCameraPosition: CameraPosition(
-                  target: _veniceGeoCoords,
-                  zoom: 13.0,
-                ),
-                markers: _markers,
-                scrollGesturesEnabled: true,
-                zoomGesturesEnabled: true,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    onMapCreated: null,
+                    initialCameraPosition: CameraPosition(
+                      target: _veniceGeoCoords,
+                      zoom: 13.0,
+                    ),
+                    markers: _markers,
+                    scrollGesturesEnabled: true,
+                    zoomGesturesEnabled: true,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         ),
       ),
