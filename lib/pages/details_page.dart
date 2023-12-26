@@ -1,7 +1,8 @@
-import 'dart:convert';
 import 'dart:async';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
 
@@ -18,7 +19,6 @@ class DetailsPage extends StatefulWidget {
 }
 
 class _DetailsPageState extends State<DetailsPage> {
-  // ID test, vedere come riceverlo dinamicamente dal marker successivamente
   late String placeID;
   dynamic details;
   List<String> imageUrl = [];
@@ -34,7 +34,7 @@ class _DetailsPageState extends State<DetailsPage> {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     // API call section
     String url = 'https://places.googleapis.com/v1/places/$id';
-    print(url);
+    // print(url);
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
@@ -69,8 +69,9 @@ class _DetailsPageState extends State<DetailsPage> {
     dynamic jsonDetails = await _getDetails(id);
     if (jsonDetails['photos'] != null) {
       imageUrl.clear();
-      for (int i = 0; i < jsonDetails['photos'].length; i++)
+      for (int i = 0; i < jsonDetails['photos'].length; i++) {
         getPhotos(jsonDetails['photos'][i]['name']);
+      }
     } else {
       imageUrl.add(
           'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png');
@@ -110,7 +111,7 @@ class _DetailsPageState extends State<DetailsPage> {
           itemCount: imageUrl.length,
           itemBuilder: (BuildContext context, int index) {
             return Padding(
-                padding: EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 8.0),
                 child: GestureDetector(
                   onTap: () {
                     _showEnlargedImage(imageUrl.elementAt(index));
@@ -133,8 +134,8 @@ class _DetailsPageState extends State<DetailsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
           child: Text(
             'Reviews',
             style: TextStyle(
@@ -145,7 +146,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
         if (details != null && details.reviews.isNotEmpty)
           Card(
-            margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+            margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
             elevation: 4.0,
             child: ListTile(
               title: Column(
@@ -156,11 +157,11 @@ class _DetailsPageState extends State<DetailsPage> {
                     children: [
                       Text(
                         '${details.reviews[0].authorName}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Rating: ${details.reviews[0].rating.toString()}',
-                        style: TextStyle(fontStyle: FontStyle.italic),
+                        style: const TextStyle(fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
@@ -170,7 +171,7 @@ class _DetailsPageState extends State<DetailsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
                   '${details.reviews[0].text}',
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 16.0), // Adjust the font size as needed
                 ),
               ),
@@ -178,7 +179,7 @@ class _DetailsPageState extends State<DetailsPage> {
           ),
         if (details != null && details.reviews.length > 1)
           ExpansionTile(
-            title: Text(
+            title: const Text(
               'Show all reviews',
               style: TextStyle(
                 fontSize: 16.0,
@@ -188,7 +189,7 @@ class _DetailsPageState extends State<DetailsPage> {
             children: [
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: details.reviews.length - 1,
                 itemBuilder: (BuildContext context, int index) {
                   return _buildReviewCard(details.reviews[index + 1]);
@@ -202,19 +203,19 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Widget _buildReviewCard(Review review) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+      margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
       elevation: 2.0,
       child: ListTile(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${review.authorName}',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              review.authorName,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
               'Rating: ${review.rating.toString()}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontStyle: FontStyle.italic,
               ),
             ),
@@ -223,8 +224,9 @@ class _DetailsPageState extends State<DetailsPage> {
         subtitle: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
-            '${review.text}',
-            style: TextStyle(fontSize: 16.0), // Adjust the font size as needed
+            review.text,
+            style: const TextStyle(
+                fontSize: 16.0), // Adjust the font size as needed
           ),
         ),
       ),
@@ -235,7 +237,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Place Details'),
+        title: const Text('Place Details'),
       ),
       body: Center(
         child: details != null
@@ -255,7 +257,7 @@ class _DetailsPageState extends State<DetailsPage> {
                               Text(
                                 details.displayName.text,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 24.0,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -263,7 +265,7 @@ class _DetailsPageState extends State<DetailsPage> {
                               Text(
                                 details.address,
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 18.0,
                                 ),
                               ),
@@ -271,17 +273,17 @@ class _DetailsPageState extends State<DetailsPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 24.0),
+                      const SizedBox(height: 24.0),
                       imageUrl.isNotEmpty
                           ? _imageGallery()
-                          : CircularProgressIndicator(),
-                      SizedBox(height: 24.0),
+                          : const CircularProgressIndicator(),
+                      const SizedBox(height: 24.0),
                       _buildReviewsSection(),
                     ],
                   ),
                 ),
               )
-            : Center(child: CircularProgressIndicator()),
+            : const Center(child: CircularProgressIndicator()),
       ),
     );
   }
