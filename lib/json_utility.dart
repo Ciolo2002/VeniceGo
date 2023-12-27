@@ -64,6 +64,8 @@ class PlaceDetails {
     required this.reviews,
     required this.openingHours,
     required this.rating,
+    required this.nationalPhoneNumber,
+    required this.websiteUri,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -96,6 +98,10 @@ class PlaceDetails {
       openNow: openNow,
     );
 
+    final String nationalPhoneNumber =
+        json['nationalPhoneNumber'] as String? ?? '';
+    final String websiteUri = json['websiteUri'] as String? ?? '';
+
     return PlaceDetails(
       id: json['id'] as String,
       displayName: DisplayName.fromJson(json['displayName']),
@@ -103,7 +109,11 @@ class PlaceDetails {
       address: json['shortFormattedAddress'] as String,
       reviews: reviews,
       openingHours: openingHours,
-      rating: json['rating'] as double,
+      rating: (json['rating'] is int)
+          ? (json['rating'] as int).toDouble()
+          : json['rating'] as double,
+      nationalPhoneNumber: nationalPhoneNumber,
+      websiteUri: websiteUri,
     );
   }
 
@@ -114,6 +124,8 @@ class PlaceDetails {
   final List<Review> reviews;
   final OpeningHours openingHours;
   final double rating;
+  final String nationalPhoneNumber;
+  final String websiteUri;
 }
 
 class Review {

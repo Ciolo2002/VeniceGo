@@ -39,7 +39,7 @@ class _DetailsPageState extends State<DetailsPage> {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
       'X-Goog-FieldMask':
-          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating',
+          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri',
     };
 
     http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -146,38 +146,7 @@ class _DetailsPageState extends State<DetailsPage> {
           ),
         ),
         if (details != null && details.reviews.isNotEmpty)
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
-            elevation: 4.0,
-            child: ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${details.reviews[0].authorName}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Rating: ${details.reviews[0].rating.toString()}',
-                        style: const TextStyle(fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  '${details.reviews[0].text}',
-                  style: const TextStyle(
-                      fontSize: 16.0), // Adjust the font size as needed
-                ),
-              ),
-            ),
-          ),
+          _buildReviewCard(details.reviews[0]),
         if (details != null && details.reviews.length > 1)
           ExpansionTile(
             title: const Text(
@@ -207,18 +176,28 @@ class _DetailsPageState extends State<DetailsPage> {
       margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
       elevation: 2.0,
       child: ListTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               review.authorName,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            Text(
-              'Rating: ${review.rating.toString()}',
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-              ),
+            Row(
+              children: [
+                Text(
+                  review.rating.toString(),
+                  style: const TextStyle(
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+                SizedBox(width: 3),
+                Icon(
+                  Icons.star,
+                  color: Colors.yellow,
+                  size: 20,
+                ),
+              ],
             ),
           ],
         ),
@@ -238,37 +217,42 @@ class _DetailsPageState extends State<DetailsPage> {
     if (details != null &&
         details.openingHours != null &&
         details.openingHours.weekdayDescriptions.isNotEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Text(
-              'Opening Hours',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+        elevation: 2.0,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: Text(
+                'Opening Hours',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 8.0),
-          ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: details.openingHours.weekdayDescriptions.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-                child: Text(
-                  details.openingHours.weekdayDescriptions[index],
-                  style: TextStyle(fontSize: 16.0),
-                ),
-              );
-            },
-          ),
-        ],
+            SizedBox(height: 8.0),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: details.openingHours.weekdayDescriptions.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 4.0),
+                  child: Text(
+                    details.openingHours.weekdayDescriptions[index],
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 5.0),
+          ],
+        ),
       );
     } else {
       return SizedBox.shrink();
@@ -278,17 +262,65 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget _buildRating() {
     if (details != null && details.rating != null) {
       return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          Text(
+            details.rating.toString(),
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(width: 5),
           Icon(
             Icons.star,
             color: Colors.yellow,
             size: 20,
           ),
-          SizedBox(width: 5),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildPhoneNumber() {
+    if (details != null &&
+        details.nationalPhoneNumber != null &&
+        details.nationalPhoneNumber != '') {
+      return Row(
+        children: [
+          Icon(Icons.phone),
+          SizedBox(
+            width: 5.0,
+          ),
           Text(
-            details.rating.toString(),
-            style: TextStyle(fontSize: 16),
+            details.nationalPhoneNumber,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildWebsiteUri() {
+    if (details != null &&
+        details.websiteUri != null &&
+        details.websiteUri != '') {
+      return Row(
+        children: [
+          Icon(Icons.link),
+          SizedBox(
+            width: 5.0,
+          ),
+          Expanded(
+            child: Text(
+              details.websiteUri,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                overflow: TextOverflow.ellipsis, // Handles text overflow
+              ),
+              maxLines: 1, // Limits to one line
+            ),
           ),
         ],
       );
@@ -301,7 +333,9 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Place Details'),
+        title: details != null
+            ? Text(details.displayName.text)
+            : Text('Place Details'),
       ),
       body: Center(
         child: details != null
@@ -342,6 +376,10 @@ class _DetailsPageState extends State<DetailsPage> {
                           ? _imageGallery()
                           : const CircularProgressIndicator(),
                       const SizedBox(height: 24.0),
+                      _buildRating(),
+                      _buildPhoneNumber(),
+                      _buildWebsiteUri(),
+                      _buildOpeningHoursSection(),
                       _buildReviewsSection(),
                     ],
                   ),
