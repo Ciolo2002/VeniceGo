@@ -39,7 +39,7 @@ class _DetailsPageState extends State<DetailsPage> {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
       'X-Goog-FieldMask':
-          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri',
+          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary',
     };
 
     http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -281,21 +281,33 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
+  Future<void> _launchCall(String num) async {
+    final Uri _url = Uri.parse('tel:$num');
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not call $num');
+    }
+  }
+
   Widget _buildPhoneNumber() {
     if (details != null &&
         details.nationalPhoneNumber != null &&
         details.nationalPhoneNumber != '') {
-      return Row(
-        children: [
-          Icon(Icons.phone),
-          SizedBox(
-            width: 5.0,
-          ),
-          Text(
-            details.nationalPhoneNumber,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
+      return GestureDetector(
+        onTap: () {
+          _launchCall(details.nationalPhoneNumber);
+        },
+        child: Row(
+          children: [
+            Icon(Icons.phone),
+            SizedBox(
+              width: 5.0,
+            ),
+            Text(
+              details.nationalPhoneNumber,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       );
     } else {
       return Container();
@@ -334,6 +346,26 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
           ],
+        ),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildEditorialSummary() {
+    if (details != null &&
+        details.editorialSummary != null &&
+        details.editorialSummary.isNotEmpty) {
+      return Card(
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            details.editorialSummary,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       );
     } else {
@@ -389,6 +421,7 @@ class _DetailsPageState extends State<DetailsPage> {
                           : const CircularProgressIndicator(),
                       const SizedBox(height: 24.0),
                       _buildRating(),
+                      _buildEditorialSummary(),
                       _buildPhoneNumber(),
                       _buildWebsiteUri(),
                       _buildOpeningHoursSection(),

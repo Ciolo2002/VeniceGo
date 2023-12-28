@@ -66,6 +66,7 @@ class PlaceDetails {
     required this.rating,
     required this.nationalPhoneNumber,
     required this.websiteUri,
+    required this.editorialSummary,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -101,6 +102,10 @@ class PlaceDetails {
     final String nationalPhoneNumber =
         json['nationalPhoneNumber'] as String? ?? '';
     final String websiteUri = json['websiteUri'] as String? ?? '';
+    String editorialSummary = '';
+
+    if (json['editorialSummary'] != null)
+      editorialSummary = json['editorialSummary']['text'] as String? ?? '';
 
     return PlaceDetails(
       id: json['id'] as String,
@@ -114,6 +119,7 @@ class PlaceDetails {
           : json['rating'] as double,
       nationalPhoneNumber: nationalPhoneNumber,
       websiteUri: websiteUri,
+      editorialSummary: editorialSummary,
     );
   }
 
@@ -126,6 +132,7 @@ class PlaceDetails {
   final double rating;
   final String nationalPhoneNumber;
   final String websiteUri;
+  final String editorialSummary;
 }
 
 class Review {
