@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
+import 'package:url_launcher/url_launcher.dart';
 
 //TODO: capire quali dati richiedere e implementarele nella chiamata
 //TODO: creare il Layout per accogliere i dati
@@ -302,27 +302,39 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
+  Future<void> _launchUrl(String url) async {
+    final Uri _url = Uri.parse(url);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+
   Widget _buildWebsiteUri() {
     if (details != null &&
         details.websiteUri != null &&
         details.websiteUri != '') {
-      return Row(
-        children: [
-          Icon(Icons.link),
-          SizedBox(
-            width: 5.0,
-          ),
-          Expanded(
-            child: Text(
-              details.websiteUri,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                overflow: TextOverflow.ellipsis, // Handles text overflow
-              ),
-              maxLines: 1, // Limits to one line
+      return GestureDetector(
+        onTap: () {
+          _launchUrl(details.websiteUri); // Function to launch URL
+        },
+        child: Row(
+          children: [
+            Icon(Icons.link),
+            SizedBox(
+              width: 5.0,
             ),
-          ),
-        ],
+            Expanded(
+              child: Text(
+                details.websiteUri,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
       );
     } else {
       return Container();

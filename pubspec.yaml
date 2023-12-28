@@ -53,6 +53,7 @@ dependencies:
   geolocator: ^10.1.0
   email_validator: ^2.1.17
   flutter_dialogs: ^3.0.0
+  url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
