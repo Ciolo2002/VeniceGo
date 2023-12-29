@@ -14,6 +14,8 @@
 .history
 .svn/
 
+# Vim session file
+Session.vim
 # IntelliJ related
 *.iml
 *.ipr
