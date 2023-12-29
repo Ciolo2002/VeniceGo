@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
+import 'package:venice_go/pages/travel_page.dart';
 
 //TODO: capire quali dati richiedere e implementarele nella chiamata
 //TODO: creare il Layout per accogliere i dati
@@ -241,9 +242,8 @@ class _DetailsPageState extends State<DetailsPage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Text(
               'Opening Hours',
               style: TextStyle(
@@ -252,10 +252,10 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
           ListView.builder(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: details.openingHours.weekdayDescriptions.length,
             itemBuilder: (BuildContext context, int index) {
               return Padding(
@@ -263,7 +263,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 child: Text(
                   details.openingHours.weekdayDescriptions[index],
-                  style: TextStyle(fontSize: 16.0),
+                  style: const TextStyle(fontSize: 16.0),
                 ),
               );
             },
@@ -271,7 +271,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ],
       );
     } else {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
   }
 
@@ -280,15 +280,15 @@ class _DetailsPageState extends State<DetailsPage> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.star,
             color: Colors.yellow,
             size: 20,
           ),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(
             details.rating.toString(),
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       );
@@ -311,6 +311,18 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  TravelPage(placeID: placeID),
+                            ),
+                          );
+                        },
+                        child: const Text('Travel'),
+                      ),
                       Card(
                         elevation: 4.0,
                         child: Padding(

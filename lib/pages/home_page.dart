@@ -77,38 +77,36 @@ class _HomePageState extends State<HomePage> {
 
   Widget _signOutButton() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      ElevatedButton(
-        // chiamo il metodo signOut() quando l'utente preme il bottone
-        onPressed: signOut,
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.indigo,
-        ),
-        child: const Text('Sign Out'),
-      )
-    ]
-    );
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            // chiamo il metodo signOut() quando l'utente preme il bottone
+            onPressed: signOut,
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.indigo,
+            ),
+            child: const Text('Sign Out'),
+          )
+        ]);
   }
 
   Widget _deleteAccountButton() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-      ElevatedButton(
-        // chiamo il metodo signOut() quando l'utente preme il bottone
-        onPressed: () async {
-          _showDeleteAccountAlertDialog();
-        },
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.red,
-        ),
-        child: const Text('Delete Account'),
-      )
-    ]
-    );
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            // chiamo il metodo signOut() quando l'utente preme il bottone
+            onPressed: () async {
+              _showDeleteAccountAlertDialog();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: const Text('Delete Account'),
+          )
+        ]);
   }
 
   Future<void> _reauthenticateAndDelete() async {
@@ -150,24 +148,21 @@ class _HomePageState extends State<HomePage> {
         title: const Text("Confirm password"),
         content: Column(
           children: [
-            const Text(
-                "To delete your account, please confirm your password."),
+            const Text("To delete your account, please confirm your password."),
             Material(
-              color: Colors.transparent,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextField(
-                  obscureText: true,
-                  onChanged: (value) {
-                    newPassword = value;
-                  },
-                  decoration: const InputDecoration(
-                    border : OutlineInputBorder(),
-                    hintText: "Your Password",
-                  ),
-                )
-              )
-            ),
+                color: Colors.transparent,
+                child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: TextField(
+                      obscureText: true,
+                      onChanged: (value) {
+                        newPassword = value;
+                      },
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "Your Password",
+                      ),
+                    ))),
           ],
         ),
         actions: <Widget>[
@@ -179,7 +174,8 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           BasicDialogAction(
-            title: const Text("Delete Account", style: TextStyle(color: Colors.red)),
+            title: const Text("Delete Account",
+                style: TextStyle(color: Colors.red)),
             onPressed: () {
               Navigator.pop(context);
             },
@@ -408,19 +404,18 @@ class _HomePageState extends State<HomePage> {
 
   Widget _profileImage() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Stack(children: <Widget>[
-            _circleAvatar(),
-            Positioned(bottom: 5, right: 5, child: _uploadSelectFileButton())
-          ]),
-          if (uploadTask != null && pickedFile != null) buildProgress()
-        ],
-      )
-    );
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(children: <Widget>[
+              _circleAvatar(),
+              Positioned(bottom: 5, right: 5, child: _uploadSelectFileButton())
+            ]),
+            if (uploadTask != null && pickedFile != null) buildProgress()
+          ],
+        ));
   }
 
   Widget _uploadSelectFileButton() {
@@ -463,18 +458,17 @@ class _HomePageState extends State<HomePage> {
     return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Column(children: [
-          Text("$_userName $_userSurname",
-              style:
-              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text(userEmail, style: const TextStyle(fontSize: 14))
-        ])
-      ],
-    )
-    );
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(children: [
+              Text("$_userName $_userSurname",
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
+              Text(userEmail, style: const TextStyle(fontSize: 14))
+            ])
+          ],
+        ));
   }
 
   @override
