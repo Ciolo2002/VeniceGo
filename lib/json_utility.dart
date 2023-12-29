@@ -104,8 +104,9 @@ class PlaceDetails {
     final String websiteUri = json['websiteUri'] as String? ?? '';
     String editorialSummary = '';
 
-    if (json['editorialSummary'] != null)
+    if (json['editorialSummary'] != null) {
       editorialSummary = json['editorialSummary']['text'] as String? ?? '';
+    }
 
     return PlaceDetails(
       id: json['id'] as String,
@@ -144,10 +145,15 @@ class Review {
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
+    String text = '';
+    if (json['text'] != null) {
+      text = json['text']['text'];
+    }
+
     return Review(
       authorName: json['authorAttribution']['displayName'] as String,
       rating: json['rating'] as int,
-      text: json['text']['text'] as String,
+      text: text,
       publishTime: json['relativePublishTimeDescription'] as String,
     );
   }

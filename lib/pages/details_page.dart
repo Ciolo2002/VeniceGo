@@ -61,9 +61,11 @@ class _DetailsPageState extends State<DetailsPage> {
       throw Exception(
           'Failed to fetch photo. Error ${response.statusCode}: ${response.reasonPhrase}');
     }
-    setState(() {
-      imageUrl.add(url);
-    });
+    if (mounted) {
+      setState(() {
+        imageUrl.add(url);
+      });
+    }
   }
 
   Future<void> getDetails(String id) async {
@@ -77,9 +79,11 @@ class _DetailsPageState extends State<DetailsPage> {
       imageUrl.add(
           'https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png');
     }
-    setState(() {
-      details = PlaceDetails.fromJson(jsonDetails);
-    });
+    if (mounted) {
+      setState(() {
+        details = PlaceDetails.fromJson(jsonDetails);
+      });
+    }
   }
 
   // Method to show the enlarged image in a dialog
@@ -201,14 +205,15 @@ class _DetailsPageState extends State<DetailsPage> {
             ),
           ],
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Text(
-            review.text,
-            style: const TextStyle(
-                fontSize: 16.0), // Adjust the font size as needed
-          ),
-        ),
+        subtitle: review.text.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  review.text,
+                  style: const TextStyle(fontSize: 16.0),
+                ),
+              )
+            : SizedBox.shrink(),
       ),
     );
   }
