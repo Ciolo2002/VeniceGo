@@ -132,6 +132,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               ))));
     });
   }
+
   void _buttonSearchPressed(String userInput) {
     _controllerUserInput.text = userInput;
     setState(() {
@@ -139,6 +140,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       _showListView = false;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -158,7 +160,6 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                     onSubmitted: (input) {
                       getMarkers(input);
                       setState(() {
-
                         _showListView = true;
                         _userInput = input;
                       });
@@ -171,7 +172,6 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                 IconButton(
                   onPressed: () {
                     setState(() {
-
                       if (!_showListView) {
                         getMarkers(_userInput);
                       }
@@ -186,24 +186,6 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-/*
-                  // uso improprio del filter button per testare il Navigator push di un place ID verso la details page
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailsPage(
-                              placeID: 'ChIJgUbEo8cfqokR5lP9_Wh_DaM'),
-                        ),
-                      );
-                    },
-                    child: const Text('F'),
-                  ),
-                ),
-                Expanded(
-
- */
                   child: ElevatedButton(
                     onPressed: () => {_buttonSearchPressed("Museum")},
                     child: const Icon(Icons.museum, semanticLabel: 'Museum'),
@@ -281,6 +263,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
       ),
     );
   }
+
   @override
   void dispose() {
     _controllerUserInput.dispose();
