@@ -316,8 +316,13 @@ class _DetailsPageState extends State<DetailsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  TravelPage(placeID: placeID),
+                              builder: (context) => TravelPage(
+                                  destinationsID:
+                                      // Yes, this is horrible.
+                                      // Dart has no native way of "casting" a type T to a List<T>
+                                      // if the element of type T is only one. If we pass more than one
+                                      // element then it's just a matter of calling .from method
+                                      List<String>.filled(1, placeID)),
                             ),
                           );
                         },
