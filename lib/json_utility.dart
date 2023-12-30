@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import "../locations.dart" as locations;
 
 import 'package:google_maps_flutter/google_maps_flutter.dart'
