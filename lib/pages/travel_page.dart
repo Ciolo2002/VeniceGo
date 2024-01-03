@@ -20,7 +20,7 @@ class _TravelPageState extends State<TravelPage> {
   final Completer<GoogleMapController> _mapsController = Completer();
   List<LatLng> _polylineCoordinates = [];
   List<LatLng> _locations = [];
-  late final LatLng _startUserPosition;
+  late LatLng _startUserPosition = LatLng(0,0);
   location.LocationData? _currentPosition;
   Set<Marker> _markers = {};
   @override
