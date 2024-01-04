@@ -17,55 +17,55 @@ class TravelPage extends StatefulWidget {
 }
 
 class _TravelPageState extends State<TravelPage> {
-  final Completer<GoogleMapController> _mapsController = Completer();
-  late List<LatLng> _polylineCoordinates = <LatLng>[];
-  late List<LatLng> _locations = <LatLng>[];
+  Completer<GoogleMapController> _mapsController = Completer();
+  List<LatLng> _polylineCoordinates = <LatLng>[];
+  List<LatLng> _locations = <LatLng>[];
   LatLng _startUserPosition = LatLng(0, 0);
   location.LocationData? _currentPosition;
   Set<Marker> _markers = {};
   @override
   void initState() {
+    super.initState();
     _getStartingPosition();
     _getPlacesfromPlaceID(widget.destinationsID);
-    _getPolylinePoints();
     _getCurrentLocation();
-    super.initState();
   }
 
   void _getStartingPosition() {
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-        .then((value) {
-      _startUserPosition = LatLng(value.latitude, value.longitude);
+        .then((position) {
+      setState(() {
+        _startUserPosition = LatLng(position.latitude, position.longitude);
+      });
     });
-
-    setState(() {});
   }
 
   void _getCurrentLocation() async {
-    location.Location _currentLocation = location.Location();
-    _currentLocation.getLocation().then((position) {
+    // Something wrong here with animateCamera
+    // FIXME: here
+    location.Location currentLocation = location.Location();
+    currentLocation.getLocation().then((position) {
       _currentPosition = position;
     });
     GoogleMapController mapsController = await _mapsController.future;
-    _currentLocation.onLocationChanged.listen((newPosition) {
-      _currentPosition = newPosition;
+    currentLocation.onLocationChanged.listen((newLocation) {
+      _currentPosition = newLocation;
       mapsController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
-              target: LatLng(newPosition.latitude!, newPosition.longitude!))));
+              zoom: 17.5,
+              target: LatLng(newLocation.latitude!, newLocation.longitude!))));
     });
-    setState(() {});
   }
 
   /// Sets the [_locations] variable to the geographical coordinates
   /// of all the places ID given to the widget
   void _getPlacesfromPlaceID(List<String> destinationsID) {
     String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
-    destinationsID.forEach((destination) {
-      // Actually we only need the location field but since we already have
-      // a class for Places, we can reuse that.
+
+    List<Future> futures = destinationsID.map((destination) {
       String url =
           "https://places.googleapis.com/v1/places/${destination}?fields=name,id,formattedAddress,location,displayName&key=${apiKey}";
-      http.get(Uri.parse(url)).then((response) {
+      return http.get(Uri.parse(url)).then((response) {
         if (response.statusCode != 200) {
           throw Exception(
               "Error ${response.statusCode}: ${response.reasonPhrase}");
@@ -74,10 +74,16 @@ class _TravelPageState extends State<TravelPage> {
         dynamic tempJson = json.decode(response.body);
         Place place = Place.fromJson(tempJson);
         _markers.add(Place.toMarker(place));
-        _locations.add(LatLng(place.location.lat, place.location.lng));
+        setState(() {
+          _locations.add(LatLng(place.location.lat, place.location.lng));
+          print("PRIMA: ${_locations}");
+        });
       });
+    }).toList();
+
+    Future.wait(futures).then((_) {
+      _getPolylinePoints();
     });
-    setState(() {});
   }
 
   // There is a limit on googleMaps destinations (iirc it's 25?) but
@@ -86,6 +92,7 @@ class _TravelPageState extends State<TravelPage> {
   void _getPolylinePoints() {
     final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
     PolylinePoints points = PolylinePoints();
+    print("DOPO: ${_locations}");
     if (_locations.isNotEmpty) {
       points
           .getRouteBetweenCoordinates(
@@ -119,24 +126,33 @@ class _TravelPageState extends State<TravelPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-            body: _startUserPosition != null
+            body: _currentPosition != null
                 ? GoogleMap(
                     initialCameraPosition:
-                        CameraPosition(target: _startUserPosition, zoom: 14.0),
+                        CameraPosition(target: _startUserPosition, zoom: 17.5),
                     markers: _markers,
                     onMapCreated: (mapController) {
+                      _mapsController = Completer();
                       _mapsController.complete(mapController);
                     },
                     polylines: {
-                        Polyline(
-                            polylineId: const PolylineId("travel_route"),
-                            points: _polylineCoordinates,
-                            color: const Color(0xABCDEF),
-                            width: 6)
-                      })
+                      Polyline(
+                          polylineId: const PolylineId("travel_route"),
+                          points: _polylineCoordinates,
+                          color: const Color(0xABCDEF),
+                          width: 6)
+                    },
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true)
                 : const Center(
-                    child: const Text(
-                        "Something's wrong... please reload the app."),
+                    child: const Text("The page is loading, please wait..."),
                   )));
+  }
+
+  @override
+  void dispose() {
+    // Found this on a stackOverflow thread, hope it works.
+    _mapsController = Completer();
+    super.dispose();
   }
 }
