@@ -8,6 +8,7 @@ import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:http/http.dart" as http;
 import "package:location/location.dart" as location;
 import "package:venice_go/json_utility.dart" show Place;
+import "../json_utility.dart" as utility show Polyline;
 
 class TravelPage extends StatefulWidget {
   const TravelPage({super.key, required this.destinationsID});
@@ -17,7 +18,7 @@ class TravelPage extends StatefulWidget {
 }
 
 class _TravelPageState extends State<TravelPage> {
-  Completer<GoogleMapController> _mapsController = Completer();
+  late GoogleMapController _mapsController;
   List<LatLng> _polylineCoordinates = <LatLng>[];
   List<LatLng> _locations = <LatLng>[];
   LatLng _startUserPosition = LatLng(0, 0);
@@ -47,10 +48,9 @@ class _TravelPageState extends State<TravelPage> {
     currentLocation.getLocation().then((position) {
       _currentPosition = position;
     });
-    GoogleMapController mapsController = await _mapsController.future;
     currentLocation.onLocationChanged.listen((newLocation) {
       _currentPosition = newLocation;
-      mapsController.animateCamera(CameraUpdate.newCameraPosition(
+      _mapsController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
               zoom: 17.5,
               target: LatLng(newLocation.latitude!, newLocation.longitude!))));
@@ -91,68 +91,75 @@ class _TravelPageState extends State<TravelPage> {
   // but as a note leave this comment here.
   void _getPolylinePoints() {
     final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
-    PolylinePoints points = PolylinePoints();
-    print("DOPO: ${_locations}");
-    if (_locations.isNotEmpty) {
-      points
-          .getRouteBetweenCoordinates(
-              apiKey,
-              PointLatLng(
-                  _startUserPosition.latitude, _startUserPosition.longitude),
-              PointLatLng(_locations[0].latitude, _locations[0].longitude))
-          .then((response) {
-        response.points.forEach((point) {
+    String url = 'https://routes.googleapis.com/directions/v2:computeRoutes';
+    Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask':
+          'routes,duration, routes,distanceMeters, routes.polyline.encodedPolyline',
+    };
+    // TODO: travelMode: TRANSIT per i mezzi pubblici
+    String body = '''
+    {
+  "origin":{
+    "location":{
+      "latLng":{
+        "latitude": ${_startUserPosition.latitude},
+        "longitude": ${_startUserPosition.longitude}
+      }
+    }
+  },
+  "destination":{
+    "location":{
+      "latLng":{
+        "latitude": ${_locations[0].latitude},
+        "longitude": ${_locations[0].longitude} 
+      }
+    }
+  },
+    "travelMode": "WALK",
+    "units": "METRIC",
+    }
+    ''';
+    http.post(Uri.parse(url), headers: headers, body: body).then((response) {
+      dynamic temp = json.decode(response.body);
+      utility.Polyline polylineJSON = utility.Polyline.fromJson(temp);
+      PolylinePoints polylinePoints = PolylinePoints();
+      List<PointLatLng> res =
+          polylinePoints.decodePolyline(polylineJSON.encodedPolyline);
+      res.forEach((point) {
+        setState(() {
           _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
         });
       });
-    }
-    for (var i = 0; i < _locations.length - 1; i++) {
-      points
-          .getRouteBetweenCoordinates(
-              apiKey,
-              PointLatLng(_locations[i].latitude, _locations[i].longitude),
-              PointLatLng(
-                  _locations[i + 1].latitude, _locations[i + 1].longitude))
-          .then((response) {
-        response.points.forEach((point) {
-          _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-        });
-      });
-    }
-    setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-            body: _currentPosition != null
-                ? GoogleMap(
-                    initialCameraPosition:
-                        CameraPosition(target: _startUserPosition, zoom: 17.5),
-                    markers: _markers,
-                    onMapCreated: (mapController) {
-                      _mapsController = Completer();
-                      _mapsController.complete(mapController);
-                    },
-                    polylines: {
-                      Polyline(
-                          polylineId: const PolylineId("travel_route"),
-                          points: _polylineCoordinates,
-                          color: const Color(0xABCDEF),
-                          width: 6)
-                    },
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true)
-                : const Center(
-                    child: const Text("The page is loading, please wait..."),
-                  )));
+            body: GoogleMap(
+                initialCameraPosition:
+                    CameraPosition(target: _startUserPosition, zoom: 17.5),
+                markers: _markers,
+                onMapCreated: (mapController) {
+                  _mapsController = mapController;
+                },
+                polylines: {
+                  Polyline(
+                      polylineId: const PolylineId("travel_route"),
+                      points: _polylineCoordinates,
+                      color: Colors.blue,
+                      width: 6)
+                },
+                myLocationEnabled: true,
+                myLocationButtonEnabled: true)));
   }
 
   @override
   void dispose() {
-    // Found this on a stackOverflow thread, hope it works.
-    _mapsController = Completer();
+    _mapsController.dispose();
     super.dispose();
   }
 }
