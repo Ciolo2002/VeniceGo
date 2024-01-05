@@ -192,3 +192,20 @@ class OpeningHours {
   final List<String> weekdayDescriptions;
   final bool openNow;
 }
+
+class Polyline {
+  Polyline(
+      {required this.distanceMeters,
+      required this.encodedPolyline,
+      required this.duration});
+
+  factory Polyline.fromJson(Map<String, dynamic> json) {
+    return Polyline(
+        distanceMeters: json["distanceMeters"] as int,
+        duration: json["duration"] as String,
+        encodedPolyline: json["encodedPolyline"] as String);
+  }
+  final int distanceMeters;
+  final String encodedPolyline;
+  final String duration;
+}
