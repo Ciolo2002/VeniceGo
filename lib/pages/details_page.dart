@@ -136,43 +136,46 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Widget _buildReviewsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Text(
-            'Reviews',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        if (details != null && details.reviews.isNotEmpty)
-          _buildReviewCard(details.reviews[0]),
-        if (details != null && details.reviews.length > 1)
-          ExpansionTile(
-            title: const Text(
-              'Show all reviews',
-              style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return details != null && details.reviews.isNotEmpty
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: details.reviews.length - 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildReviewCard(details.reviews[index + 1]);
-                },
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: Text(
+                  'Reviews',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
+              _buildReviewCard(details.reviews[0]),
+              if (details.reviews.length > 1)
+                ExpansionTile(
+                  title: const Text(
+                    'Show more reviews',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: details.reviews.length - 1,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _buildReviewCard(details.reviews[index + 1]);
+                      },
+                    ),
+                  ],
+                ),
             ],
-          ),
-      ],
-    );
+          )
+        : SizedBox
+            .shrink(); // Returns an empty container if there are no reviews
   }
 
   Widget _buildReviewCard(Review review) {
@@ -222,42 +225,47 @@ class _DetailsPageState extends State<DetailsPage> {
     if (details != null &&
         details.openingHours != null &&
         details.openingHours.weekdayDescriptions.isNotEmpty) {
-      return Card(
-        margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
-        elevation: 2.0,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              child: Text(
-                'Opening Hours',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 8.0),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: details.openingHours.weekdayDescriptions.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
+      return Column(
+        children: [
+          Card(
+            margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+            elevation: 2.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 4.0),
+                      vertical: 8.0, horizontal: 16.0),
                   child: Text(
-                    details.openingHours.weekdayDescriptions[index],
-                    style: TextStyle(fontSize: 16.0),
+                    'Opening Hours',
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
+                ),
+                SizedBox(height: 8.0),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: details.openingHours.weekdayDescriptions.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 4.0),
+                      child: Text(
+                        details.openingHours.weekdayDescriptions[index],
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: 5.0),
+              ],
             ),
-            SizedBox(height: 5.0),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24.0),
+        ],
       );
     } else {
       return SizedBox.shrink();
@@ -270,7 +278,7 @@ class _DetailsPageState extends State<DetailsPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
-            details.rating.toString(),
+            details.rating != 0.0 ? details.rating.toString() : 'Rating N/A',
             style: TextStyle(fontSize: 16),
           ),
           SizedBox(width: 5),
@@ -362,20 +370,54 @@ class _DetailsPageState extends State<DetailsPage> {
     if (details != null &&
         details.editorialSummary != null &&
         details.editorialSummary.isNotEmpty) {
-      return Card(
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            details.editorialSummary,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
+      return Column(
+        children: [
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                details.editorialSummary,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: 24.0),
+        ],
       );
     } else {
       return Container();
     }
+  }
+
+  Widget _buildTitle() {
+    return Card(
+      elevation: 4.0,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              details.displayName.text,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              details.address,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -394,38 +436,14 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Card(
-                        elevation: 4.0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                details.displayName.text,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                details.address,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 18.0,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _buildTitle(),
                       const SizedBox(height: 24.0),
                       imageUrl.isNotEmpty
                           ? _imageGallery()
                           : const CircularProgressIndicator(),
                       const SizedBox(height: 24.0),
                       _buildRating(),
+                      const SizedBox(height: 24.0),
                       _buildEditorialSummary(),
                       _buildPhoneNumber(),
                       _buildWebsiteUri(),

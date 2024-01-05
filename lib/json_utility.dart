@@ -115,9 +115,11 @@ class PlaceDetails {
       address: json['shortFormattedAddress'] as String,
       reviews: reviews,
       openingHours: openingHours,
-      rating: (json['rating'] is int)
-          ? (json['rating'] as int).toDouble()
-          : json['rating'] as double,
+      rating: json['rating'] != null
+          ? (json['rating'] is int
+              ? (json['rating'] as int).toDouble()
+              : json['rating'] as double)
+          : 0.0,
       nationalPhoneNumber: nationalPhoneNumber,
       websiteUri: websiteUri,
       editorialSummary: editorialSummary,
