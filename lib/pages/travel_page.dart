@@ -76,7 +76,6 @@ class _TravelPageState extends State<TravelPage> {
         _markers.add(Place.toMarker(place));
         setState(() {
           _locations.add(LatLng(place.location.lat, place.location.lng));
-          print("PRIMA: ${_locations}");
         });
       });
     }).toList();
@@ -96,7 +95,7 @@ class _TravelPageState extends State<TravelPage> {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
       'X-Goog-FieldMask':
-          'routes,duration, routes,distanceMeters, routes.polyline.encodedPolyline',
+          'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline',
     };
     // TODO: travelMode: TRANSIT per i mezzi pubblici
     String body = '''
@@ -122,8 +121,8 @@ class _TravelPageState extends State<TravelPage> {
     }
     ''';
     http.post(Uri.parse(url), headers: headers, body: body).then((response) {
-      dynamic temp = json.decode(response.body);
-      utility.Polyline polylineJSON = utility.Polyline.fromJson(temp);
+      List<dynamic> temp = json.decode(response.body)["routes"];
+      utility.Polyline polylineJSON = utility.Polyline.fromJson(temp[0]);
       PolylinePoints polylinePoints = PolylinePoints();
       List<PointLatLng> res =
           polylinePoints.decodePolyline(polylineJSON.encodedPolyline);
@@ -133,6 +132,7 @@ class _TravelPageState extends State<TravelPage> {
         });
       });
     });
+    // TODO: add all the other destinations
   }
 
   @override
@@ -150,7 +150,7 @@ class _TravelPageState extends State<TravelPage> {
                   Polyline(
                       polylineId: const PolylineId("travel_route"),
                       points: _polylineCoordinates,
-                      color: Colors.blue,
+                      color: Colors.red,
                       width: 6)
                 },
                 myLocationEnabled: true,
