@@ -201,10 +201,12 @@ class Polyline {
 
   factory Polyline.fromJson(Map<String, dynamic> json) {
     return Polyline(
-        distanceMeters: json["distanceMeters"] as int,
-        duration: json["duration"] as String,
-        encodedPolyline: json["encodedPolyline"] as String);
+      distanceMeters: json['distanceMeters'] as int,
+      encodedPolyline: json['polyline']['encodedPolyline'] as String,
+      duration: json['duration'] as String,
+    );
   }
+
   final int distanceMeters;
   final String encodedPolyline;
   final String duration;
