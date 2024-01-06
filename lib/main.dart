@@ -1,4 +1,5 @@
 import 'package:venice_go/navigation_bar.dart';
+import 'package:venice_go/pages/BookMarked.dart';
 import 'package:venice_go/pages/google_maps.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'widget_tree.dart';
@@ -62,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                 children: const [
                   GoogleMaps(),
                   // LocationSearchScreen(),
-                  Text('Saved'),
+                  BookMarked(),
                   WidgetTree(),
                 ],
               ),

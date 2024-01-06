@@ -23,6 +23,25 @@ class DetailsPage extends StatefulWidget {
   State<DetailsPage> createState() => _DetailsPageState();
 }
 
+Future<dynamic> getDetailsApi(String id) async {
+  final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
+  // API call section
+  String url = 'https://places.googleapis.com/v1/places/$id';
+  // print(url);
+  Map<String, String> headers = {
+    'Content-Type': 'application/json',
+    'X-Goog-Api-Key': apiKey,
+    'X-Goog-FieldMask':
+    'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary',
+  };
+
+  http.Response response = await http.get(Uri.parse(url), headers: headers);
+  if (response.statusCode != 200) {
+    throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
+  }
+  return json.decode(response.body);
+}
+
 Future<List> getBookMarkFromFirebase() async {
   // Ottieni l'ID dell'utente attualmente loggato
   String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -47,28 +66,11 @@ class _DetailsPageState extends State<DetailsPage> {
     placeID = widget.placeID;
     getBookMarkFromFirebase().then((value) {
       isBookmarked = value.contains(placeID);
-    } );
+    });
     getDetails(placeID);
   }
 
-  Future<dynamic> _getDetails(String id) async {
-    final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
-    // API call section
-    String url = 'https://places.googleapis.com/v1/places/$id';
-    // print(url);
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask':
-          'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary',
-    };
 
-    http.Response response = await http.get(Uri.parse(url), headers: headers);
-    if (response.statusCode != 200) {
-      throw Exception('Error ${response.statusCode}: ${response.reasonPhrase}');
-    }
-    return json.decode(response.body);
-  }
 
   Future<dynamic> getPhotos(String name) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
@@ -90,7 +92,7 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<void> getDetails(String id) async {
-    dynamic jsonDetails = await _getDetails(id);
+    dynamic jsonDetails = await getDetailsApi(id);
     if (jsonDetails['photos'] != null) {
       imageUrl.clear();
       for (int i = 0; i < jsonDetails['photos'].length; i++) {
