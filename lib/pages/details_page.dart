@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
 import 'package:venice_go/pages/travel_page.dart';
+
+import '../auth.dart';
 
 //TODO: capire quali dati richiedere e implementarele nella chiamata
 //TODO: creare il Layout per accogliere i dati
@@ -13,21 +17,41 @@ import 'package:venice_go/pages/travel_page.dart';
 
 class DetailsPage extends StatefulWidget {
   final String placeID;
+
   const DetailsPage({super.key, required this.placeID});
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
 
+Future<List> getBookMarkFromFirebase() async {
+  // Ottieni l'ID dell'utente attualmente loggato
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  // Ottieni un riferimento al documento utente nel database Firebase in tempo reale
+  DatabaseReference userRef =
+  FirebaseDatabase.instance.ref().child('users').child(userId);
+  DataSnapshot snapshot = await userRef.get();
+  // Ottieni i dati attuali dell'utente dal database Firebase in tempo reale
+  Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
+  return userData['bookmarkedPlace'];
+}
+List getBookMarkFromFirebaseDone(){
+  List bookmarkedPlace = [];
+  getBookMarkFromFirebase().then((value) => bookmarkedPlace = value);
+  return bookmarkedPlace;
+}
+
 class _DetailsPageState extends State<DetailsPage> {
   late String placeID;
   dynamic details;
   List<String> imageUrl = [];
+  bool isBookmarked = false;
 
   @override
   void initState() {
     super.initState();
     placeID = widget.placeID;
+    isBookmarked = getBookMarkFromFirebaseDone().contains(placeID);
     getDetails(placeID);
   }
 
@@ -297,11 +321,87 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
+  void showLoginDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Login Required'),
+          content: Text('You need to log in to bookmark this place.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Chiudi il popup
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+  void saveRemoveBookmarkToFirebase(bool add) async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DatabaseReference userRef =
+          FirebaseDatabase.instance.ref().child('users').child(userId);
+      List bookmarkedPlace = await getBookMarkFromFirebase();
+
+      List<String> bookmarkedPlaces = List<String>.from(bookmarkedPlace);
+      if (!bookmarkedPlaces.contains(placeID) && add) {
+        bookmarkedPlaces.add(placeID);
+        await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+        //print('Bookmark added to Firebase for user $userId');
+      } else if (bookmarkedPlaces.contains(placeID) && !add) {
+        bookmarkedPlaces.remove(placeID);
+        await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+        //print('Bookmark removed from Firebase for user $userId');
+      } else {
+        // print('Bookmark already exists for user $userId');
+      }
+      // Aggiorna il valore del segnalibro nel documento utente nel database Firebase in tempo reale
+      await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+    } catch (e) {
+      print('Error saving bookmark to Firebase: $e');
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context)  {
+    return  Scaffold(
       appBar: AppBar(
         title: const Text('Place Details'),
+        actions: [
+          IconButton(
+            icon: isBookmarked
+                ? Icon(Icons.bookmark)
+                : Icon(Icons.bookmark_border),
+            onPressed: () {
+              // Aggiunto controllo per il login
+              if (Auth().currentUser != null) {
+                setState(() {
+                  isBookmarked = !isBookmarked;
+                });
+
+                // Esegui altre azioni desiderate qui in base al tuo stato
+                if (isBookmarked) {
+                  print('Place bookmarked!');
+                  saveRemoveBookmarkToFirebase(true);
+                } else {
+                  print('Bookmark removed.');
+                  saveRemoveBookmarkToFirebase(false);
+                }
+              } else {
+                // Mostra il popup per richiedere il login
+                showLoginDialog(context);
+              }
+            },
+          ),
+        ],
       ),
       body: Center(
         child: details != null
