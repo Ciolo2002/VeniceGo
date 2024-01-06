@@ -62,6 +62,9 @@ class PlaceDetails {
     required this.reviews,
     required this.openingHours,
     required this.rating,
+    required this.nationalPhoneNumber,
+    required this.websiteUri,
+    required this.editorialSummary,
   });
 
   factory PlaceDetails.fromJson(Map<String, dynamic> json) {
@@ -94,6 +97,15 @@ class PlaceDetails {
       openNow: openNow,
     );
 
+    final String nationalPhoneNumber =
+        json['nationalPhoneNumber'] as String? ?? '';
+    final String websiteUri = json['websiteUri'] as String? ?? '';
+    String editorialSummary = '';
+
+    if (json['editorialSummary'] != null) {
+      editorialSummary = json['editorialSummary']['text'] as String? ?? '';
+    }
+
     return PlaceDetails(
       id: json['id'] as String,
       displayName: DisplayName.fromJson(json['displayName']),
@@ -101,7 +113,15 @@ class PlaceDetails {
       address: json['shortFormattedAddress'] as String,
       reviews: reviews,
       openingHours: openingHours,
-      rating: (json['rating']==null  ? double.parse('0') : double.parse(json['rating'].toString())),
+
+      rating: json['rating'] != null
+          ? (json['rating'] is int
+              ? (json['rating'] as int).toDouble()
+              : json['rating'] as double)
+          : 0.0,
+      nationalPhoneNumber: nationalPhoneNumber,
+      websiteUri: websiteUri,
+      editorialSummary: editorialSummary,
     );
   }
 
@@ -112,6 +132,9 @@ class PlaceDetails {
   final List<Review> reviews;
   final OpeningHours openingHours;
   final double rating;
+  final String nationalPhoneNumber;
+  final String websiteUri;
+  final String editorialSummary;
 }
 
 class Review {
@@ -123,10 +146,19 @@ class Review {
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
+    String text = '';
+    if (json['text'] != null) {
+      text = json['text']['text'];
+    }
+
     return Review(
       authorName: json['authorAttribution']['displayName'] as String,
       rating: json['rating'] as int,
+<<<<<<< HEAD
       text:( json['text']==null ? '' : (json['text']['text']==null ? '':  json['text']['text']) ) as String,
+=======
+      text: text,
+>>>>>>> f1f52f21560843855b6ba5ff90dcfdf53d31e604
       publishTime: json['relativePublishTimeDescription'] as String,
     );
   }
