@@ -34,11 +34,6 @@ Future<List> getBookMarkFromFirebase() async {
   Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
   return userData['bookmarkedPlace'];
 }
-List getBookMarkFromFirebaseDone(){
-  List bookmarkedPlace = [];
-  getBookMarkFromFirebase().then((value) => bookmarkedPlace = value);
-  return bookmarkedPlace;
-}
 
 class _DetailsPageState extends State<DetailsPage> {
   late String placeID;
@@ -50,7 +45,9 @@ class _DetailsPageState extends State<DetailsPage> {
   void initState() {
     super.initState();
     placeID = widget.placeID;
-    isBookmarked = getBookMarkFromFirebaseDone().contains(placeID);
+    getBookMarkFromFirebase().then((value) {
+      isBookmarked = value.contains(placeID);
+    } );
     getDetails(placeID);
   }
 
