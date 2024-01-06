@@ -91,13 +91,9 @@ class _TravelPageState extends State<TravelPage> {
   }
 
   /// Sets the [_polylineCoordinates] variable to the geographical coordinates
-  /// of the route from the user's current position to the destinations in the
-  /// [_locations] variable.
-  void _getPolylinePoints() {
-    // There is a limit on googleMaps destinations (iirc it's 25?) but
-    // I don't think that we will ever have more than 25 destinations to calculate
-    // but as a note leave this comment here.
-    final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
+  /// of the route from the source [src] parameter to the destination [dest]
+  /// parameter.
+  void _getPolylinePointsBetweenPlaces(String apiKey, LatLng src, LatLng dest) {
     String url = 'https://routes.googleapis.com/directions/v2:computeRoutes';
     Map<String, String> headers = {
       'Content-Type': 'application/json',
@@ -111,16 +107,16 @@ class _TravelPageState extends State<TravelPage> {
   "origin":{
     "location":{
       "latLng":{
-        "latitude": ${_startUserPosition.latitude},
-        "longitude": ${_startUserPosition.longitude}
+        "latitude": ${src.latitude},
+        "longitude": ${src.longitude}
       }
     }
   },
   "destination":{
     "location":{
       "latLng":{
-        "latitude": ${_locations[0].latitude},
-        "longitude": ${_locations[0].longitude} 
+        "latitude": ${dest.latitude},
+        "longitude": ${dest.longitude} 
       }
     }
   },
@@ -140,47 +136,22 @@ class _TravelPageState extends State<TravelPage> {
         });
       });
     });
-    // I know that it's not the best way to do it but I don't have
-    // enough time to do it in a better way.
-    // I will just copy and paste the code above and change the destination
-    // and the origin.
-    // TODO: refactor this code
-    for (int i = 0; i < _locations.length - 1; ++i) {
-      body = '''
-    {
-  "origin":{
-    "location":{
-      "latLng":{
-        "latitude": ${_locations[i].latitude},
-        "longitude": ${_locations[i].longitude}
-      }
-    }
-  },
-  "destination":{
-    "location":{
-      "latLng":{
-        "latitude": ${_locations[i + 1].latitude},
-        "longitude": ${_locations[i + 1].longitude} 
-      }
-    }
-  },
-    "travelMode": "WALK",
-    "units": "METRIC",
-    }
-    ''';
+  }
 
-      http.post(Uri.parse(url), headers: headers, body: body).then((response) {
-        List<dynamic> temp = json.decode(response.body)["routes"];
-        utility.Polyline polylineJSON = utility.Polyline.fromJson(temp[0]);
-        PolylinePoints polylinePoints = PolylinePoints();
-        List<PointLatLng> res =
-            polylinePoints.decodePolyline(polylineJSON.encodedPolyline);
-        res.forEach((point) {
-          setState(() {
-            _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-          });
-        });
-      });
+  /// Sets the [_polylineCoordinates] variable to the geographical coordinates
+  /// of the route from the user's current position to the destinations in the
+  /// [_locations] variable.
+  void _getPolylinePoints() {
+    // There is a limit on googleMaps destinations (iirc it's 25?) but
+    // I don't think that we will ever have more than 25 destinations to calculate
+    // but as a note leave this comment here.
+    final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
+    // This is a workaround because i could have added _startUserPosition
+    // to the _locations list but i wanted to keep it separate.
+    _getPolylinePointsBetweenPlaces(apiKey, _startUserPosition, _locations[0]);
+
+    for (int i = 0; i < _locations.length - 1; i++) {
+      _getPolylinePointsBetweenPlaces(apiKey, _locations[i], _locations[i + 1]);
     }
   }
 
