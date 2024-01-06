@@ -154,11 +154,7 @@ class Review {
     return Review(
       authorName: json['authorAttribution']['displayName'] as String,
       rating: json['rating'] as int,
-<<<<<<< HEAD
       text:( json['text']==null ? '' : (json['text']['text']==null ? '':  json['text']['text']) ) as String,
-=======
-      text: text,
->>>>>>> f1f52f21560843855b6ba5ff90dcfdf53d31e604
       publishTime: json['relativePublishTimeDescription'] as String,
     );
   }
