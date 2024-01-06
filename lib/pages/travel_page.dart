@@ -20,35 +20,43 @@ class _TravelPageState extends State<TravelPage> {
   late GoogleMapController _mapsController;
   List<LatLng> _polylineCoordinates = <LatLng>[];
   List<LatLng> _locations = <LatLng>[];
-  LatLng _startUserPosition = LatLng(0, 0);
+  LatLng _currentUserPosition = LatLng(0, 0);
   Set<Marker> _markers = {};
+  late StreamSubscription<Position> _positionStreamSubscription;
+
   @override
   void initState() {
     super.initState();
-    _getStartingPosition();
-    _getPlacesfromPlaceID(widget.destinationsID);
-    _getCurrentPosition();
   }
 
-  /// Sets the [_startUserPosition] variable to the geographical coordinates
+  /// Sets the [_currentUserPosition] variable to the geographical coordinates
   /// of the user's current position
   void _getStartingPosition() {
     Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((position) {
       setState(() {
-        _startUserPosition = LatLng(position.latitude, position.longitude);
+        _currentUserPosition = LatLng(position.latitude, position.longitude);
         _markers.add(Marker(
             markerId: const MarkerId("start_user_position"),
-            position: _startUserPosition));
+            position: _currentUserPosition,
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueGreen)));
       });
     });
+
+    _mapsController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: _currentUserPosition, zoom: 17.5)));
+    _getPlacesfromPlaceID(widget.destinationsID);
   }
 
   /// Removes the old current position marker and adds the new one
   /// to the [_markers] set.
   void _getCurrentPosition() {
-    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-        .then((position) {
+    // Adds a listener for the current position
+    // so that the marker will update its position
+    // when the user moves.
+    _positionStreamSubscription =
+        Geolocator.getPositionStream().listen((position) {
       setState(() {
         _markers.removeWhere(
             (element) => element.markerId.value == "current_position");
@@ -56,6 +64,14 @@ class _TravelPageState extends State<TravelPage> {
             markerId: const MarkerId("current_position"),
             position: LatLng(position.latitude, position.longitude)));
       });
+    });
+    // Updates the camera position to the new current position
+    // when the user moves.
+    _positionStreamSubscription.onData((position) {
+      _mapsController.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(
+              target: LatLng(position.latitude, position.longitude),
+              zoom: 17.5)));
     });
   }
 
@@ -65,8 +81,8 @@ class _TravelPageState extends State<TravelPage> {
     String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
     // Copilot magic here
     // But if i understood correctly what copilot is doing
-    // it's just a loop that wait for all http request to finish
-    // and parse the json.
+    // it's just a loop that waits for all http requests to finish
+    // and then parse the resulting json.
     List<Future> futures = destinationsID.map((destination) {
       String url =
           "https://places.googleapis.com/v1/places/${destination}?fields=name,id,formattedAddress,location,displayName&key=${apiKey}";
@@ -146,9 +162,10 @@ class _TravelPageState extends State<TravelPage> {
     // I don't think that we will ever have more than 25 destinations to calculate
     // but as a note leave this comment here.
     final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
-    // This is a workaround because i could have added _startUserPosition
+    // This is a workaround because i could have added _currentUserPosition
     // to the _locations list but i wanted to keep it separate.
-    _getPolylinePointsBetweenPlaces(apiKey, _startUserPosition, _locations[0]);
+    _getPolylinePointsBetweenPlaces(
+        apiKey, _currentUserPosition, _locations[0]);
 
     for (int i = 0; i < _locations.length - 1; i++) {
       _getPolylinePointsBetweenPlaces(apiKey, _locations[i], _locations[i + 1]);
@@ -161,10 +178,10 @@ class _TravelPageState extends State<TravelPage> {
         home: Scaffold(
             body: GoogleMap(
                 initialCameraPosition:
-                    CameraPosition(target: _startUserPosition, zoom: 17.5),
+                    CameraPosition(target: _currentUserPosition, zoom: 17.5),
                 markers: _markers,
                 onMapCreated: (mapController) {
-                  _mapsController = mapController;
+                  _onMapCreated(mapController);
                 },
                 polylines: {
                   Polyline(
@@ -177,9 +194,16 @@ class _TravelPageState extends State<TravelPage> {
                 myLocationButtonEnabled: true)));
   }
 
+  void _onMapCreated(GoogleMapController controller) {
+    _mapsController = controller;
+    _getStartingPosition();
+    _getCurrentPosition();
+  }
+
   @override
   void dispose() {
     _mapsController.dispose();
+    _positionStreamSubscription.cancel();
     super.dispose();
   }
 }
