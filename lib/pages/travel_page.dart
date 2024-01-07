@@ -48,7 +48,17 @@ class _TravelPageState extends State<TravelPage> {
         CameraPosition(target: _currentUserPosition, zoom: 17.5)));
     _getPlacesfromPlaceID(widget.destinationsID);
   }
+  
 
+  void _updateCurrentPosition(Position pos) {
+    _markers.removeWhere((element) => element.markerId.value == "current_position");
+    _markers.add(Marker(
+      markerId: const MarkerId("current_position"),
+      position: LatLng(pos.latitude, pos.longitude),
+      icon: BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueOrange)));
+      
+  }
   /// Removes the old current position marker and adds the new one
   /// to the [_markers] set.
   void _getCurrentPosition() {
@@ -58,32 +68,23 @@ class _TravelPageState extends State<TravelPage> {
     _positionStreamSubscription =
         Geolocator.getPositionStream().listen((position) {
       setState(() {
-        _markers.removeWhere(
-            (element) => element.markerId.value == "current_position");
-        _markers.add(Marker(
-            markerId: const MarkerId("current_position"),
-            position: LatLng(position.latitude, position.longitude),
-            // TODO: use profile picture as icon
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueOrange)));
+      _updateCurrentPosition(position);
       });
     });
     // Updates the camera position to the new current position
     // when the user moves.
-    // TODO: Also update polyline
     _positionStreamSubscription.onData((position) {
       _mapsController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
               target: LatLng(position.latitude, position.longitude),
               zoom: 17.5)));
       setState(() {
-        _markers.removeWhere(
-            (element) => element.markerId.value == "current_position");
-        _markers.add(Marker(
-            markerId: const MarkerId("current_position"),
-            position: LatLng(position.latitude, position.longitude),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-                BitmapDescriptor.hueOrange)));
+        _updateCurrentPosition(position);
+        if (_currentUserPosition.latitude != position.latitude &&
+            _currentUserPosition.longitude != position.longitude) {
+          _currentUserPosition = LatLng(position.latitude, position.longitude);
+          _getPolylinePoints();
+        }
       });
     });
   }
@@ -177,6 +178,11 @@ class _TravelPageState extends State<TravelPage> {
     final String apiKey = dotenv.env["GOOGLE_MAPS_API_KEY"] as String;
     // This is a workaround because i could have added _currentUserPosition
     // to the _locations list but i wanted to keep it separate.
+
+    if (_polylineCoordinates.isNotEmpty) {
+      _polylineCoordinates.clear();
+    }
+
     _getPolylinePointsBetweenPlaces(
         apiKey, _currentUserPosition, _locations[0]);
 
