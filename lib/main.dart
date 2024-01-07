@@ -6,6 +6,7 @@ import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import "package:venice_go/permission_request.dart";
 
 Future<void> main() async {
   // fondamentali per il funzionamento di Firebase
@@ -14,6 +15,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   ); // inizializza Firebase
   await dotenv.load();
+  await PermissionRequest.request();
   runApp(const MyApp());
 }
 
