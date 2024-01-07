@@ -62,16 +62,29 @@ class _TravelPageState extends State<TravelPage> {
             (element) => element.markerId.value == "current_position");
         _markers.add(Marker(
             markerId: const MarkerId("current_position"),
-            position: LatLng(position.latitude, position.longitude)));
+            position: LatLng(position.latitude, position.longitude),
+            // TODO: use profile picture as icon
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueOrange)));
       });
     });
     // Updates the camera position to the new current position
     // when the user moves.
+    // TODO: Also update polyline
     _positionStreamSubscription.onData((position) {
       _mapsController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
               target: LatLng(position.latitude, position.longitude),
               zoom: 17.5)));
+      setState(() {
+        _markers.removeWhere(
+            (element) => element.markerId.value == "current_position");
+        _markers.add(Marker(
+            markerId: const MarkerId("current_position"),
+            position: LatLng(position.latitude, position.longitude),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueOrange)));
+      });
     });
   }
 
