@@ -19,8 +19,8 @@ class DetailsPage extends StatefulWidget {
   final String placeID;
   final VoidCallback refreshCallback;
 
-
-  const DetailsPage({super.key, required this.placeID, required this.refreshCallback});
+  const DetailsPage(
+      {super.key, required this.placeID, required this.refreshCallback});
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
@@ -34,8 +34,7 @@ Future<dynamic> getDetailsApi(String id, String whatINeed) async {
   Map<String, String> headers = {
     'Content-Type': 'application/json',
     'X-Goog-Api-Key': apiKey,
-    'X-Goog-FieldMask':
-    whatINeed,
+    'X-Goog-FieldMask': whatINeed,
   };
 
   http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -50,27 +49,24 @@ Future<List> getBookMarkFromFirebase() async {
   String userId = FirebaseAuth.instance.currentUser!.uid;
   // Ottieni un riferimento al documento utente nel database Firebase in tempo reale
   DatabaseReference userRef =
-  FirebaseDatabase.instance.ref().child('users').child(userId);
+      FirebaseDatabase.instance.ref().child('users').child(userId);
   DataSnapshot snapshot = await userRef.get();
 
   // Ottieni i dati attuali dell'utente dal database Firebase in tempo reale
   Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
-  if(userData.keys.contains('bookmarkedPlace')){
+  if (userData.keys.contains('bookmarkedPlace')) {
     return userData['bookmarkedPlace'];
-  }
-  else{
+  } else {
     return [];
   }
 }
 
 void saveRemoveBookmarkToFirebase(bool add, String placeID) async {
-
   try {
-
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     DatabaseReference userRef =
-    FirebaseDatabase.instance.ref().child('users').child(userId);
+        FirebaseDatabase.instance.ref().child('users').child(userId);
     List bookmarkedPlace = await getBookMarkFromFirebase();
 
     List<String> bookmarkedPlaces = List<String>.from(bookmarkedPlace);
@@ -113,8 +109,6 @@ class _DetailsPageState extends State<DetailsPage> {
     getDetails(placeID);
   }
 
-
-
   Future<dynamic> getPhotos(String name) async {
     final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
     // API call section
@@ -135,7 +129,8 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<void> getDetails(String id) async {
-    dynamic jsonDetails = await getDetailsApi(id,'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary');
+    dynamic jsonDetails = await getDetailsApi(id,
+        'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary');
     if (jsonDetails['photos'] != null) {
       imageUrl.clear();
       for (int i = 0; i < jsonDetails['photos'].length; i++) {
@@ -293,7 +288,6 @@ class _DetailsPageState extends State<DetailsPage> {
         details.openingHours.weekdayDescriptions.isNotEmpty) {
       return Column(
         children: [
-
           Card(
             margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
             elevation: 2.0,
@@ -344,7 +338,6 @@ class _DetailsPageState extends State<DetailsPage> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-
           Text(
             details.rating != 0.0 ? details.rating.toString() : 'Rating N/A',
             style: TextStyle(fontSize: 16),
@@ -355,19 +348,13 @@ class _DetailsPageState extends State<DetailsPage> {
             color: Colors.yellow,
             size: 20,
           ),
-
           const SizedBox(width: 5),
-          Text(
-            details.rating.toString(),
-            style: const TextStyle(fontSize: 16),
-          ),
         ],
       );
     } else {
       return Container();
     }
   }
-
 
   void showLoginDialog(BuildContext context) {
     showDialog(
@@ -389,11 +376,6 @@ class _DetailsPageState extends State<DetailsPage> {
       },
     );
   }
-
-
-
-
-
 
   Future<void> _launchCall(String num) async {
     final Uri _url = Uri.parse('tel:$num');
@@ -521,12 +503,10 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
-
   @override
-  Widget build(BuildContext context)  {
-    return  Scaffold(
+  Widget build(BuildContext context) {
+    return Scaffold(
       appBar: AppBar(
-
         title: const Text('Place Details'),
         actions: [
           IconButton(
@@ -628,6 +608,4 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
     );
   }
-
-
 }
