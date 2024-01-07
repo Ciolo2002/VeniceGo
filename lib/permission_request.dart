@@ -5,7 +5,6 @@ class PermissionRequest {
   static Future<void> _requestAndroid() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
-      Permission.storage,
     ].request();
     // Check if permissions are granted
     statuses.forEach((permission, status) {
