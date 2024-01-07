@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
+import 'package:venice_go/pages/BookMarked.dart';
 import 'package:venice_go/pages/travel_page.dart';
 import '../auth.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,14 +17,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 class DetailsPage extends StatefulWidget {
   final String placeID;
+  final VoidCallback refreshCallback;
 
-  const DetailsPage({super.key, required this.placeID});
+
+  const DetailsPage({super.key, required this.placeID, required this.refreshCallback});
 
   @override
   State<DetailsPage> createState() => _DetailsPageState();
 }
 
-Future<dynamic> getDetailsApi(String id) async {
+Future<dynamic> getDetailsApi(String id, String whatINeed) async {
   final String apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] as String;
   // API call section
   String url = 'https://places.googleapis.com/v1/places/$id';
@@ -32,7 +35,7 @@ Future<dynamic> getDetailsApi(String id) async {
     'Content-Type': 'application/json',
     'X-Goog-Api-Key': apiKey,
     'X-Goog-FieldMask':
-    'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary',
+    whatINeed,
   };
 
   http.Response response = await http.get(Uri.parse(url), headers: headers);
@@ -49,9 +52,43 @@ Future<List> getBookMarkFromFirebase() async {
   DatabaseReference userRef =
   FirebaseDatabase.instance.ref().child('users').child(userId);
   DataSnapshot snapshot = await userRef.get();
+
   // Ottieni i dati attuali dell'utente dal database Firebase in tempo reale
   Map<dynamic, dynamic> userData = snapshot.value as Map<dynamic, dynamic>;
-  return userData['bookmarkedPlace'];
+  if(userData.keys.contains('bookmarkedPlace')){
+    return userData['bookmarkedPlace'];
+  }
+  else{
+    return [];
+  }
+}
+
+void saveRemoveBookmarkToFirebase(bool add, String placeID) async {
+
+  try {
+
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    DatabaseReference userRef =
+    FirebaseDatabase.instance.ref().child('users').child(userId);
+    List bookmarkedPlace = await getBookMarkFromFirebase();
+
+    List<String> bookmarkedPlaces = List<String>.from(bookmarkedPlace);
+    print(bookmarkedPlaces);
+    if (!bookmarkedPlaces.contains(placeID) && add) {
+      bookmarkedPlaces.add(placeID);
+      await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+      //print('Bookmark added to Firebase for user $userId');
+    } else if (bookmarkedPlaces.contains(placeID) && !add) {
+      bookmarkedPlaces.remove(placeID);
+      await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+      //print('Bookmark removed from Firebase for user $userId');
+    }
+    // Aggiorna il valore del segnalibro nel documento utente nel database Firebase in tempo reale
+    await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
+  } catch (e) {
+    print('Error saving bookmark to Firebase: $e');
+  }
 }
 
 class _DetailsPageState extends State<DetailsPage> {
@@ -59,6 +96,12 @@ class _DetailsPageState extends State<DetailsPage> {
   dynamic details;
   List<String> imageUrl = [];
   bool isBookmarked = false;
+
+  @override
+  void dispose() {
+    widget.refreshCallback(); // Chiamare la funzione di callback nel dispose
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -92,7 +135,7 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<void> getDetails(String id) async {
-    dynamic jsonDetails = await getDetailsApi(id);
+    dynamic jsonDetails = await getDetailsApi(id,'id,displayName,photos,shortFormattedAddress,reviews,currentOpeningHours,rating,nationalPhoneNumber,websiteUri,editorialSummary');
     if (jsonDetails['photos'] != null) {
       imageUrl.clear();
       for (int i = 0; i < jsonDetails['photos'].length; i++) {
@@ -349,31 +392,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
 
 
-  void saveRemoveBookmarkToFirebase(bool add) async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      DatabaseReference userRef =
-          FirebaseDatabase.instance.ref().child('users').child(userId);
-      List bookmarkedPlace = await getBookMarkFromFirebase();
 
-      List<String> bookmarkedPlaces = List<String>.from(bookmarkedPlace);
-      if (!bookmarkedPlaces.contains(placeID) && add) {
-        bookmarkedPlaces.add(placeID);
-        await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
-        //print('Bookmark added to Firebase for user $userId');
-      } else if (bookmarkedPlaces.contains(placeID) && !add) {
-        bookmarkedPlaces.remove(placeID);
-        await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
-        //print('Bookmark removed from Firebase for user $userId');
-      } else {
-        // print('Bookmark already exists for user $userId');
-      }
-      // Aggiorna il valore del segnalibro nel documento utente nel database Firebase in tempo reale
-      await userRef.update({'bookmarkedPlace': bookmarkedPlaces});
-    } catch (e) {
-      print('Error saving bookmark to Firebase: $e');
-    }
-  }
 
 
   Future<void> _launchCall(String num) async {
@@ -524,10 +543,11 @@ class _DetailsPageState extends State<DetailsPage> {
                 // Esegui altre azioni desiderate qui in base al tuo stato
                 if (isBookmarked) {
                   print('Place bookmarked!');
-                  saveRemoveBookmarkToFirebase(true);
+                  saveRemoveBookmarkToFirebase(true, placeID);
                 } else {
                   print('Bookmark removed.');
-                  saveRemoveBookmarkToFirebase(false);
+                  saveRemoveBookmarkToFirebase(false, placeID);
+                  Navigator.pop(context, true);
                 }
               } else {
                 // Mostra il popup per richiedere il login
@@ -608,4 +628,6 @@ class _DetailsPageState extends State<DetailsPage> {
       ),
     );
   }
+
+
 }

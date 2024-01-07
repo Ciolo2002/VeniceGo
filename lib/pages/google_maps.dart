@@ -234,7 +234,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => DetailsPage(
-                                    placeID: _suggestions[index].id)));
+                                    placeID: _suggestions[index].id, refreshCallback: ()=>{})));
                       },
                     );
                   },
