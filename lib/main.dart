@@ -1,8 +1,7 @@
 import 'package:venice_go/navigation_bar.dart';
+import 'package:venice_go/pages/BookMarked.dart';
 import 'package:venice_go/pages/google_maps.dart';
-import 'package:venice_go/pages/location_search_screen.dart';
-
-import 'navigation_data/navigation_data.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'widget_tree.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,6 +13,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ); // inizializza Firebase
+  await dotenv.load();
   runApp(const MyApp());
 }
 
@@ -44,8 +44,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    NavigationData navigationData = NavigationData();
-    navigationData.initNavigationData();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -64,8 +62,8 @@ class _MyAppState extends State<MyApp> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: const [
                   GoogleMaps(),
-                  LocationSearchScreen(),
-                  Text('Saved'),
+                  // LocationSearchScreen(),
+                  BookMarked(),
                   WidgetTree(),
                 ],
               ),
