@@ -13,7 +13,7 @@ class PermissionRequest {
       }
     });
   }
-
+  
   /// Requests the permissions for storage and location.
   static Future<void> request() async {
     if (Platform.isAndroid) {
