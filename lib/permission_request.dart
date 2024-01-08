@@ -19,8 +19,8 @@ class PermissionRequest {
     if (Platform.isAndroid) {
       await _requestAndroid();
     } else if (Platform.isIOS) {
-      // TODO iOS
-      throw Exception("permission_request.dart vi spara questo errore.");
+      await _requestIOS();
+      //throw Exception("permission_request.dart vi spara questo errore.");
       // https://stackoverflow.com/questions/68599765/flutter-permission-handler-grant-not-showing-on-ios
     } else {
       throw Exception("Platform not supported.");
