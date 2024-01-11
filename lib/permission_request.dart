@@ -13,13 +13,28 @@ class PermissionRequest {
       }
     });
   }
-  
+  static Future<void> _requestIOS() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+      //Permission.locationAlways,
+      //Permission.locationWhenInUse,
+    ].request();
+    // Check if permissions are granted
+    statuses.forEach((permission, status) {
+      print(permission);
+      print(status);
+      if (!status.isGranted) {
+        //throw Exception("Please give ${status.name} permissions.");
+      }
+    });
+  }
+
   /// Requests the permissions for storage and location.
   static Future<void> request() async {
     if (Platform.isAndroid) {
       await _requestAndroid();
     } else if (Platform.isIOS) {
-      await _requestAndroid();
+      await _requestIOS();
       //throw Exception("permission_request.dart vi spara questo errore.");
       // https://stackoverflow.com/questions/68599765/flutter-permission-handler-grant-not-showing-on-ios
     } else {
