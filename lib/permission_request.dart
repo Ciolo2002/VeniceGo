@@ -13,22 +13,7 @@ class PermissionRequest {
       }
     });
   }
-  static Future<void> _requestIOS() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.location,
-      //Permission.locationAlways,
-      //Permission.locationWhenInUse,
-    ].request();
-    // Check if permissions are granted
-    statuses.forEach((permission, status) {
-      print(permission);
-      print(status);
-      if (!status.isGranted) {
-        //throw Exception("Please give ${status.name} permissions.");
-      }
-    });
-  }
-
+  
   /// Requests the permissions for storage and location.
   static Future<void> request() async {
     if (Platform.isAndroid) {
