@@ -208,6 +208,7 @@ class _LoginPageState extends State<LoginPage> {
                 _entryField('Password', _controllerPassword, isPassword: true),
                 _entryField('Confirm Password', _controllerPasswordConfirm,
                     isPassword: true),
+
                 if (errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),

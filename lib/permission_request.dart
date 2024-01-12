@@ -5,12 +5,23 @@ class PermissionRequest {
   static Future<void> _requestAndroid() async {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.location,
-      Permission.storage,
     ].request();
     // Check if permissions are granted
     statuses.forEach((permission, status) {
       if (!status.isGranted) {
-        throw Exception("Please give permissions.");
+        throw Exception("Please give ${status.name} permissions.");
+      }
+    });
+  }
+  static Future<void> _requestIOS() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+    ].request();
+    // Check if permissions are granted
+    statuses.forEach((permission, status) {
+      print(permission);
+      print(status);
+      if (!status.isGranted) {
       }
     });
   }
@@ -20,8 +31,9 @@ class PermissionRequest {
     if (Platform.isAndroid) {
       await _requestAndroid();
     } else if (Platform.isIOS) {
-      // TODO iOS
-      // https://stackoverflow.com/questions/68599765/flutter-permission-handler-grant-not-showing-on-ios
+      await _requestIOS();
+    } else {
+      throw Exception("Platform not supported.");
     }
   }
 }
