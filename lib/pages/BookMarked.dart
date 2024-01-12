@@ -71,11 +71,8 @@ class _BookMarkedPageState extends State<BookMarked> {
                 double y = position.dy;
                 GestureBinding.instance.handlePointerEvent(PointerDownEvent(
                   position: Offset(x, y)
-                )); //trigger button up,
-
+                ));
                 Future.delayed(Duration(milliseconds: 300));
-                //add delay between up and down button
-
                 GestureBinding.instance.handlePointerEvent(PointerUpEvent(
                   position: Offset(x, y),
                 ));
