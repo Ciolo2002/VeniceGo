@@ -8,7 +8,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import "package:venice_go/permission_request.dart";
 
-
 Future<void> main() async {
   // fondamentali per il funzionamento di Firebase
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +27,6 @@ class MyApp extends StatefulWidget {
     return _MyAppState();
   }
 }
-
-
 
 class _MyAppState extends State<MyApp> {
   int currentIndex = 0;
