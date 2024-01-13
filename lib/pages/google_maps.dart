@@ -141,92 +141,83 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     });
   }
 
+  Widget _makeQuickSearchButton(String search, IconData icon) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        child: ElevatedButton(
+          onPressed: () => _buttonSearchPressed(search),
+          child: Icon(icon, semanticLabel: search),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.green[700],
+        colorSchemeSeed: Colors.blue,
       ),
       home: Scaffold(
         body: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controllerUserInput,
-                    onSubmitted: (input) {
-                      getMarkers(input);
-                      setState(() {
-                        _showListView = true;
-                        _userInput = input;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Search for a location',
+            Container(
+                color: Colors.blue[50],
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: TextField(
+                          controller: _controllerUserInput,
+                          onSubmitted: (input) {
+                            getMarkers(input);
+                            setState(() {
+                              _showListView = true;
+                              _userInput = input;
+                            });
+                          },
+                          decoration: const InputDecoration(
+                              labelText: 'Search for a location',
+                              border: InputBorder.none),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      if (!_showListView) {
-                        getMarkers(_userInput);
-                      }
-                      _showListView = !_showListView;
-                    });
-                  },
-                  icon: Icon(_showListView ? Icons.remove : Icons.search),
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => {_buttonSearchPressed("Museum")},
-                    child: const Icon(Icons.museum, semanticLabel: 'Museum'),
-                  ),
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => {_buttonSearchPressed("Night Club")},
-                    child: const Icon(Icons.celebration,
-                        semanticLabel: 'Night Club'),
-                  ),
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => {_buttonSearchPressed("Park")},
-                    child: const Icon(Icons.park, semanticLabel: 'Park'),
-                  ),
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => {_buttonSearchPressed("Supermarket")},
-                    child: const Icon(Icons.shopping_cart,
-                        semanticLabel: 'Supermarket'),
-                  ),
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => {},
-                    child: const Icon(Icons.backspace,
-                        semanticLabel:
-                            'Remove suggestion'), //TODO: POSIZIONARE A FIANCO DELLA ICONA DELLA LENTE DI INGRANDIMENTO (mettere una icona della X)
-                  ),
-                ),
-              ],
-            ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (!_showListView) {
+                            getMarkers(_userInput);
+                          }
+                          _showListView = !_showListView;
+                        });
+                      },
+                      icon: Icon(_showListView ? Icons.remove : Icons.search),
+                    ),
+                  ],
+                )),
+            Container(
+                color: Colors.blue[300],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _makeQuickSearchButton("Museum", Icons.museum),
+                    _makeQuickSearchButton("Night Club", Icons.celebration),
+                    _makeQuickSearchButton("Park", Icons.park),
+                    _makeQuickSearchButton("Supermarket", Icons.shopping_cart),
+                  ],
+                )),
             if (_showListView)
               Expanded(
                 child: ListView.builder(
                   itemCount: _suggestions.length,
                   itemBuilder: (context, index) {
                     return ListTile(
+                      tileColor: Colors.blue[50],
+                      focusColor: Colors.blue[200],
                       title: Text(_suggestions[index].displayName.text),
                       onTap: () {
                         _showListView = false;
@@ -234,7 +225,8 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => DetailsPage(
-                                    placeID: _suggestions[index].id, refreshCallback: ()=>{})));
+                                    placeID: _suggestions[index].id,
+                                    refreshCallback: () => {})));
                       },
                     );
                   },
