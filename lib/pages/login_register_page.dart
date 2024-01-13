@@ -13,7 +13,9 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
+
 class _LoginPageState extends State<LoginPage> {
+
   String? errorMessage = '';
   bool isLogin = true;
   bool isPasswordVisible = false;
@@ -100,6 +102,13 @@ class _LoginPageState extends State<LoginPage> {
     for (final fieldName in requiredF.keys) {
       if (!_hasValue(fieldName, requiredF[fieldName]!)) {
         return false; // Interrompi la funzione se uno dei campi richiesti è vuoto
+      }
+
+      if(!isChecked) {
+        setState((){
+          errorMessage = _formatExceptionMessage("You must accept the Terms and Conditions");
+        });
+        return false;
       }
     }
     return true;
