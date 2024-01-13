@@ -86,7 +86,10 @@ class _HomePageState extends State<HomePage> {
             style: TextButton.styleFrom(
               backgroundColor: Colors.indigo,
             ),
-            child: const Text('Sign Out'),
+            child: const Text(
+              'Sign Out',
+              style: TextStyle(fontSize: 16),
+            ),
           )
         ]);
   }
@@ -104,7 +107,7 @@ class _HomePageState extends State<HomePage> {
             style: TextButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Delete Account'),
+            child: const Text('Delete Account', style: TextStyle(fontSize: 16)),
           )
         ]);
   }
@@ -307,7 +310,7 @@ class _HomePageState extends State<HomePage> {
     if (pickedFile != null) {
       return CircleAvatar(
         radius: 80,
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.blue[900],
         child: ClipOval(
           child: SizedBox(
             width: 150, // Imposta la larghezza desiderata per l'immagine
@@ -320,7 +323,7 @@ class _HomePageState extends State<HomePage> {
       if (_userPhoto != '') {
         return CircleAvatar(
             radius: 80,
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.blue[800],
             child: CircleAvatar(
                 radius: 75,
                 backgroundImage: NetworkImage(_userPhoto),
@@ -328,7 +331,7 @@ class _HomePageState extends State<HomePage> {
       } else {
         return const CircleAvatar(
             radius: 80,
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.blue,
             child: CircleAvatar(
                 radius: 75,
                 backgroundImage: AssetImage('assets/images/cafoscari.jpg'),
@@ -464,8 +467,8 @@ class _HomePageState extends State<HomePage> {
             Column(children: [
               Text("$_userName $_userSurname",
                   style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)),
-              Text(userEmail, style: const TextStyle(fontSize: 14))
+                      fontSize: 24, fontWeight: FontWeight.bold)),
+              Text(userEmail, style: const TextStyle(fontSize: 16))
             ])
           ],
         ));
@@ -475,9 +478,10 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        color: Colors.blue[200],
         height: double.infinity,
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         alignment: Alignment.center,
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -487,6 +491,7 @@ class _HomePageState extends State<HomePage> {
                     ? <Widget>[
                         _profileImage(),
                         _userInfo(),
+                        SizedBox(height: 32),
                         _signOutButton(),
                         _deleteAccountButton(),
                       ]

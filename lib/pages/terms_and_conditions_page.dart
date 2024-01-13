@@ -13,7 +13,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
         title: const Text('Reset password'),
       ),
       body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
               const Text('Terms and Conditions',

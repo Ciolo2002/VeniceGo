@@ -392,7 +392,7 @@ class _DetailsPageState extends State<DetailsPage> {
         },
         child: Row(
           children: [
-            Icon(Icons.phone),
+            Icon(Icons.phone, color: Colors.indigoAccent),
             SizedBox(
               width: 4.0,
             ),
@@ -425,7 +425,7 @@ class _DetailsPageState extends State<DetailsPage> {
         },
         child: Row(
           children: [
-            Icon(Icons.link),
+            Icon(Icons.link, color: Colors.indigoAccent),
             SizedBox(
               width: 4.0,
             ),
@@ -511,8 +511,8 @@ class _DetailsPageState extends State<DetailsPage> {
         actions: [
           IconButton(
             icon: isBookmarked
-                ? Icon(Icons.bookmark)
-                : Icon(Icons.bookmark_border),
+                ? Icon(Icons.bookmark, color: Colors.indigoAccent)
+                : Icon(Icons.bookmark_border, color: Colors.indigoAccent),
             onPressed: () {
               // Aggiunto controllo per il login
               if (Auth().currentUser != null) {
@@ -545,23 +545,6 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TravelPage(
-                                  destinationsID:
-                                      // Yes, this is horrible.
-                                      // Dart has no native way of "casting" a type T to a List<T>
-                                      // if the element of type T is only one. If we pass more than one
-                                      // element then it's just a matter of calling .from method
-                                      List<String>.filled(1, placeID)),
-                            ),
-                          );
-                        },
-                        child: const Text('Travel'),
-                      ),
                       Card(
                         elevation: 4.0,
                         child: Padding(
@@ -595,6 +578,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       const SizedBox(height: 24.0),
                       _buildEditorialSummary(),
                       Padding(
+                        // tel + rating
                         padding: EdgeInsets.symmetric(horizontal: 12),
                         child: Row(children: [
                           Expanded(child: _buildPhoneNumber()),
@@ -602,6 +586,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         ]),
                       ),
                       Padding(
+                        // website
                         padding: EdgeInsets.symmetric(horizontal: 12),
                         child: _buildWebsiteUri(),
                       ),
@@ -613,6 +598,27 @@ class _DetailsPageState extends State<DetailsPage> {
                 ),
               )
             : const Center(child: CircularProgressIndicator()),
+      ),
+      floatingActionButton: FloatingActionButton(
+        shape: CircleBorder(
+            side: BorderSide(width: 1, color: Colors.indigoAccent)),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.indigoAccent,
+        child: const Icon(Icons.directions),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TravelPage(
+                  destinationsID:
+                      // Yes, this is horrible.
+                      // Dart has no native way of "casting" a type T to a List<T>
+                      // if the element of type T is only one. If we pass more than one
+                      // element then it's just a matter of calling .from method
+                      List<String>.filled(1, placeID)),
+            ),
+          );
+        },
       ),
     );
   }

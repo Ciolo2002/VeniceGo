@@ -59,7 +59,7 @@ class _BookMarkedPageState extends State<BookMarked> {
         children: [
           Text(
             'You need to login to see your bookmarks',
-            style: TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 24),
           ),
           ElevatedButton(
               onPressed: () async {
@@ -85,52 +85,56 @@ class _BookMarkedPageState extends State<BookMarked> {
   Widget build(BuildContext context) {
     const title = 'Bookmarked Places';
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       title: title,
       home: Scaffold(
         body: Auth().currentUser == null
             ? _loginWidget()
-            : ListView.builder(
-                itemCount: placesInfo.length,
-                itemBuilder: (context, index) {
-                  final key = placesInfo.keys.elementAt(index);
-                  return Dismissible(
-                      key: Key(key),
-                      onDismissed: (direction) {
-                        saveRemoveBookmarkToFirebase(false, key);
-                      },
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: EdgeInsets.only(right: 16.0),
-                        child: Icon(Icons.delete, color: Colors.white),
-                      ),
-                      child: FutureBuilder(
-                        future: placesInfo[key],
+            : Container(
+                color: Colors.blue[200],
+                child: ListView.builder(
+                  itemCount: placesInfo.length,
+                  itemBuilder: (context, index) {
+                    final key = placesInfo.keys.elementAt(index);
+                    return Dismissible(
                         key: Key(key),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            Map<String, dynamic> dataMap =
-                                snapshot.data as Map<String, dynamic>;
-                            return ListTile(
-                              title: Text(dataMap['displayName']['text']),
-                              subtitle: Text(dataMap['shortFormattedAddress']),
-                              onTap: () => navigateToDetailsPage(key),
-                            );
-                          } else if (snapshot.hasError) {
-                            return ListTile(
-                              title: Text(key),
-                              subtitle: Text('Error: ${snapshot.error}'),
-                            );
-                          }
-                          return ListTile(
-                            title: CircularProgressIndicator(
-                              color: Colors.blue,
-                            ),
-                          );
+                        onDismissed: (direction) {
+                          saveRemoveBookmarkToFirebase(false, key);
                         },
-                      ));
-                },
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: EdgeInsets.only(right: 16.0),
+                          child: Icon(Icons.delete, color: Colors.white),
+                        ),
+                        child: FutureBuilder(
+                          future: placesInfo[key],
+                          key: Key(key),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              Map<String, dynamic> dataMap =
+                                  snapshot.data as Map<String, dynamic>;
+                              return ListTile(
+                                title: Text(dataMap['displayName']['text']),
+                                subtitle:
+                                    Text(dataMap['shortFormattedAddress']),
+                                onTap: () => navigateToDetailsPage(key),
+                              );
+                            } else if (snapshot.hasError) {
+                              return ListTile(
+                                title: Text(key),
+                                subtitle: Text('Error: ${snapshot.error}'),
+                              );
+                            }
+                            return ListTile(
+                              title: CircularProgressIndicator(
+                                color: Colors.blue,
+                              ),
+                            );
+                          },
+                        ));
+                  },
+                ),
               ),
       ),
     );

@@ -200,7 +200,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                   ],
                 )),
             Container(
-                color: Colors.blue[300],
+                color: Colors.blue[200],
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [

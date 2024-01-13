@@ -75,7 +75,7 @@ class _MyAppState extends State<MyApp> {
                 navigationBarTheme: NavigationBarThemeData(
                   backgroundColor: Colors.blue,
                   // Customize the background color
-                  indicatorColor: Colors.indigo,
+                  indicatorColor: Colors.indigoAccent,
                   // Customize the color of the selected tab indicator
                   // Add more customizations here
                   labelTextStyle: MaterialStateProperty.all(const TextStyle(
