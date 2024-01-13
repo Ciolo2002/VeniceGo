@@ -145,10 +145,10 @@ class Review {
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
-    late String text = '';
-    if (json['text'] != null) {
-      text = json['text']['text'];
-    }
+    //String text = '';
+    //if (json['text'] != null) {
+    //  text = json['text']['text'];
+    //}
 
     return Review(
       authorName: json['authorAttribution']['displayName'] as String,
