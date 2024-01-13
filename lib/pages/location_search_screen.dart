@@ -120,7 +120,7 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                 labelText: 'Search for a location',
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 itemCount: _suggestions.length,
