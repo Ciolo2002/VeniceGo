@@ -241,7 +241,7 @@ class _DetailsPageState extends State<DetailsPage> {
 
   Widget _buildReviewCard(Review review) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+      margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       elevation: 2.0,
       child: ListTile(
         title: Column(
@@ -289,7 +289,7 @@ class _DetailsPageState extends State<DetailsPage> {
       return Column(
         children: [
           Card(
-            margin: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+            margin: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
             elevation: 2.0,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -321,7 +321,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     );
                   },
                 ),
-                SizedBox(height: 5.0),
+                SizedBox(height: 4.0),
               ],
             ),
           ),
@@ -340,15 +340,14 @@ class _DetailsPageState extends State<DetailsPage> {
         children: [
           Text(
             details.rating != 0.0 ? details.rating.toString() : 'Rating N/A',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(width: 5),
+          SizedBox(width: 4),
           Icon(
             Icons.star,
             color: Colors.yellow,
-            size: 20,
+            size: 22,
           ),
-          const SizedBox(width: 5),
         ],
       );
     } else {
@@ -396,7 +395,7 @@ class _DetailsPageState extends State<DetailsPage> {
           children: [
             Icon(Icons.phone),
             SizedBox(
-              width: 5.0,
+              width: 4.0,
             ),
             Text(
               details.nationalPhoneNumber,
@@ -429,7 +428,7 @@ class _DetailsPageState extends State<DetailsPage> {
           children: [
             Icon(Icons.link),
             SizedBox(
-              width: 5.0,
+              width: 4.0,
             ),
             Expanded(
               child: Text(
@@ -506,7 +505,9 @@ class _DetailsPageState extends State<DetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[200],
       appBar: AppBar(
+        backgroundColor: Colors.blue[200],
         title: const Text('Place Details'),
         actions: [
           IconButton(
@@ -593,11 +594,19 @@ class _DetailsPageState extends State<DetailsPage> {
                           ? _imageGallery()
                           : const CircularProgressIndicator(),
                       const SizedBox(height: 24.0),
-                      _buildRating(),
-                      const SizedBox(height: 24.0),
                       _buildEditorialSummary(),
-                      _buildPhoneNumber(),
-                      _buildWebsiteUri(),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(children: [
+                          Expanded(child: _buildPhoneNumber()),
+                          _buildRating(),
+                        ]),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: _buildWebsiteUri(),
+                      ),
+                      const SizedBox(height: 24.0),
                       _buildOpeningHoursSection(),
                       _buildReviewsSection(),
                     ],
