@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/main.dart';
 import 'package:venice_go/pages/forgot_password_page.dart';
+import 'package:venice_go/pages/terms_and_conditions_page.dart';
 import '../auth.dart';
 
 class LoginPage extends StatefulWidget {
@@ -181,6 +182,35 @@ class _LoginPageState extends State<LoginPage> {
     return isLogin ? const Text('Login') : const Text('Registrazione');
   }
 
+  Widget _checkbox() {
+    return Center(
+        child: Column(
+          children: [
+            Row(
+              children: [
+                MyCheckbox(),
+                const Text("I agree to the "),
+                GestureDetector(
+                  child: const Text(
+                    "Terms and Conditions",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => TermsAndConditionsPage(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        )
+    );
+  }
+
   // in base alla booleana isLogin carica il login o la registrazione
   @override
   Widget build(BuildContext context) {
@@ -208,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
                 _entryField('Password', _controllerPassword, isPassword: true),
                 _entryField('Confirm Password', _controllerPasswordConfirm,
                     isPassword: true),
-
+                _checkbox(),
                 if (errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),
@@ -265,6 +295,44 @@ class _LoginPageState extends State<LoginPage> {
               _loginOrRegisterButton(),
             ]),
       ),
+    );
+  }
+}
+
+
+bool isChecked = false;
+
+class MyCheckbox extends StatefulWidget {
+  const MyCheckbox({super.key});
+
+  @override
+  State<MyCheckbox> createState() => _MyCheckboxState();
+}
+
+class _MyCheckboxState extends State<MyCheckbox> {
+  @override
+  Widget build(BuildContext context) {
+    Color getColor(Set<MaterialState> states) {
+      const Set<MaterialState> interactiveStates = <MaterialState>{
+        MaterialState.pressed,
+        MaterialState.hovered,
+        MaterialState.focused,
+      };
+      if (states.any(interactiveStates.contains)) {
+        return Colors.blue;
+      }
+      return Colors.blue;
+    }
+
+    return Checkbox(
+      checkColor: Colors.white,
+      fillColor: MaterialStateProperty.resolveWith(getColor),
+      value: isChecked,
+      onChanged: (bool? value) {
+        setState(() {
+          isChecked = value!;
+        });
+      },
     );
   }
 }
