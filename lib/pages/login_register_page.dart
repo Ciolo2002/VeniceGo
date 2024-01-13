@@ -132,30 +132,34 @@ class _LoginPageState extends State<LoginPage> {
   // Widget per fare il toggle della password (l'occhio)
   Widget _entryField(String title, TextEditingController controller,
       {bool isPassword = false}) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword && !isPasswordVisible,
-      onChanged: (String value) {
-        setState(() {
-          errorMessage = '';
-        });
-      },
-      decoration: InputDecoration(
-        labelText: title,
-        suffixIcon: isPassword
-            ? IconButton(
-                icon: Icon(
-                  // Based on isPasswordVisible state choose the icon
-                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  color: Theme.of(context).primaryColorDark,
-                ),
-                onPressed: () {
-                  // Update the state i.e. toogle the state of isPasswordVisible variable
-                  setState(() {
-                    isPasswordVisible = !isPasswordVisible;
-                  });
-                })
-            : null,
+    return Container(
+      color: Colors.blue[50],
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword && !isPasswordVisible,
+        onChanged: (String value) {
+          setState(() {
+            errorMessage = '';
+          });
+        },
+        decoration: InputDecoration(
+          labelText: title,
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    // Based on isPasswordVisible state choose the icon
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Theme.of(context).primaryColorDark,
+                  ),
+                  onPressed: () {
+                    // Update the state i.e. toogle the state of isPasswordVisible variable
+                    setState(() {
+                      isPasswordVisible = !isPasswordVisible;
+                    });
+                  })
+              : null,
+        ),
       ),
     );
   }
@@ -168,7 +172,8 @@ class _LoginPageState extends State<LoginPage> {
             ? _signInWithEmailAndPassword()
             : _createUserWithEmailAndPassword();
       },
-      child: Text(isLogin ? 'Login' : 'Register'),
+      child: Text(isLogin ? 'Login' : 'Register',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 
@@ -181,7 +186,11 @@ class _LoginPageState extends State<LoginPage> {
           errorMessage = '';
         });
       },
-      child: Text(isLogin ? 'Register Instead' : 'Login Instead'),
+      child: Text(isLogin ? 'Register Instead' : 'Login Instead',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.primary,
+            decoration: TextDecoration.underline,
+          )),
     );
   }
 
@@ -230,41 +239,40 @@ class _LoginPageState extends State<LoginPage> {
   */
   Widget _buildRegister() {
     return Scaffold(
-      body: SizedBox(
-        height: double.infinity,
-        width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                _entryField('Name', _controllerName),
-                _entryField('Surname', _controllerSurname),
-                _entryField('Email', _controllerEmail),
-                _entryField('Password', _controllerPassword, isPassword: true),
-                _entryField('Confirm Password', _controllerPasswordConfirm,
-                    isPassword: true),
-                _checkbox(),
-                if (errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      errorMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-                _submitButton(),
-                _loginOrRegisterButton(),
-              ]),
-        ),
-      ),
-    );
+        body: Container(
+            color: Colors.blue[200],
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    _entryField('Name', _controllerName),
+                    _entryField('Surname', _controllerSurname),
+                    _entryField('Email', _controllerEmail),
+                    _entryField('Password', _controllerPassword,
+                        isPassword: true),
+                    _entryField('Confirm Password', _controllerPasswordConfirm,
+                        isPassword: true),
+                    _checkbox(),
+                    if (errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    _submitButton(),
+                    _loginOrRegisterButton(),
+                  ]),
+            )));
   }
 
   Widget _buildSignIn() {
     return Scaffold(
       body: Container(
+        color: Colors.blue[200],
         height: double.infinity,
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -279,27 +287,30 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(top: 16.0),
                   child: Text(
                     errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
                   ),
                 ),
               _submitButton(),
               GestureDetector(
-                child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
-                    child: Text(
-                      "Forgot password?",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        decoration: TextDecoration.underline,
-                      ),
-                    )),
+                child: Row(children: [
+                  Expanded(
+                      child: Text(
+                    "Forgot password?",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  )),
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: _loginOrRegisterButton())
+                ]),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ForgotPasswordPage(),
                   ),
                 ),
               ),
-              _loginOrRegisterButton(),
             ]),
       ),
     );
