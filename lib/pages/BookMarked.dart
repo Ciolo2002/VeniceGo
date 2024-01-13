@@ -65,20 +65,19 @@ class _BookMarkedPageState extends State<BookMarked> {
           ),
           ElevatedButton(
               onPressed: () async {
-                RenderBox renderbox = myButtonKey.currentContext!.findRenderObject() as RenderBox;
+                RenderBox renderbox =
+                    myButtonKey.currentContext!.findRenderObject() as RenderBox;
                 Offset position = renderbox.localToGlobal(Offset.zero);
                 double x = position.dx;
                 double y = position.dy;
-                GestureBinding.instance.handlePointerEvent(PointerDownEvent(
-                  position: Offset(x, y)
-                ));
+                GestureBinding.instance.handlePointerEvent(
+                    PointerDownEvent(position: Offset(x, y)));
                 Future.delayed(Duration(milliseconds: 300));
                 GestureBinding.instance.handlePointerEvent(PointerUpEvent(
                   position: Offset(x, y),
                 ));
               },
-              child: Text("Login now")
-          ),
+              child: Text("Login now")),
         ],
       ),
     );
@@ -88,11 +87,11 @@ class _BookMarkedPageState extends State<BookMarked> {
   Widget build(BuildContext context) {
     const title = 'Bookmarked Places';
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: title,
       home: Scaffold(
         body: Auth().currentUser == null
-            ?
-            _loginWidget()
+            ? _loginWidget()
             : ListView.builder(
                 itemCount: placesInfo.length,
                 itemBuilder: (context, index) {
