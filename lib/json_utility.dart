@@ -113,7 +113,6 @@ class PlaceDetails {
       address: json['shortFormattedAddress'] as String,
       reviews: reviews,
       openingHours: openingHours,
-
       rating: json['rating'] != null
           ? (json['rating'] is int
               ? (json['rating'] as int).toDouble()
@@ -146,7 +145,7 @@ class Review {
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
-    String text = '';
+    late String text = '';
     if (json['text'] != null) {
       text = json['text']['text'];
     }
@@ -154,7 +153,8 @@ class Review {
     return Review(
       authorName: json['authorAttribution']['displayName'] as String,
       rating: json['rating'] as int,
-      text:( json['text']==null ? '' : (json['text']['text'] ?? '') ) as String,
+      text:
+          (json['text'] == null ? '' : (json['text']['text'] ?? '')) as String,
       publishTime: json['relativePublishTimeDescription'] as String,
     );
   }

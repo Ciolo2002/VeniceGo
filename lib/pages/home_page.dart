@@ -10,7 +10,7 @@ import 'dart:io';
 import '../auth.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();

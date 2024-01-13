@@ -15,16 +15,17 @@ class MyNavigationBar extends StatefulWidget {
   @override
   State<MyNavigationBar> createState() => _MyNavigationBarState();
 }
+
 final myButtonKey = GlobalKey();
 
 class _MyNavigationBarState extends State<MyNavigationBar> {
-  late int _selectedIndex;
+  //late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
 
-    _selectedIndex = widget.selectedIndex;
+    //_selectedIndex = widget.selectedIndex;
   }
 
   @override
@@ -34,7 +35,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
         selectedIndex: widget.selectedIndex,
         onDestinationSelected: widget.onDestinationSelected,
         animationDuration: const Duration(milliseconds: 1500),
-        destinations:  [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home),
             selectedIcon: Icon(Icons.home),

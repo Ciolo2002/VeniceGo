@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
-  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-
   // variabili per la gestione del form
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controllerEmail = TextEditingController();
@@ -47,8 +46,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     if (value == null || value.isEmpty) {
       return 'Insert your email address';
     }
-    final bool _isValid = EmailValidator.validate(value);
-    if (!_isValid) {
+    final bool isValid = EmailValidator.validate(value);
+    if (!isValid) {
       return 'Insert a valid email address';
     }
     return null;

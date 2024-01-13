@@ -5,9 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venice_go/pages/home_page.dart';
 
 /// Classe che gestisce la pagina di verifica dell'email
-class VerifyEmailPage extends StatefulWidget{
+class VerifyEmailPage extends StatefulWidget {
   @override
-  _VerifyEmailPageState createState() => _VerifyEmailPageState();
+  State<VerifyEmailPage> createState() => _VerifyEmailPageState();
 }
 
 /// Classe per le verifica dell'email
@@ -24,12 +24,12 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
     super.initState();
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
 
-    if(!isEmailVerified){
+    if (!isEmailVerified) {
       sendEmailVerification();
 
       timer = Timer.periodic(
         const Duration(seconds: 3),
-          (_) => checkEmailVerified(),
+        (_) => checkEmailVerified(),
       );
     }
   }
@@ -43,14 +43,14 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   /// Metodo che controlla se l'email è stata verificata
   /// e se è stata verificata distrugge il timer
-  Future checkEmailVerified() async{
+  Future checkEmailVerified() async {
     await FirebaseAuth.instance.currentUser!.reload();
 
     setState(() {
       isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
     });
 
-    if(isEmailVerified){
+    if (isEmailVerified) {
       timer?.cancel();
     }
   }
@@ -58,7 +58,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   /// Metodo che invia l'email di verifica
   /// e disabilita il bottone per 5 secondi
   /// quando il bottone viene riabilitato l'utente può inviare un'altra email
-  Future sendEmailVerification() async{
+  Future sendEmailVerification() async {
     final user = FirebaseAuth.instance.currentUser;
     await user!.sendEmailVerification();
 
@@ -69,45 +69,42 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   /// Metodo che costruisce la pagina con i widget necessari
   @override
-  Widget build(BuildContext context) =>
-      isEmailVerified ?
-      HomePage()
+  Widget build(BuildContext context) => isEmailVerified
+      ? HomePage()
       : Scaffold(
           body: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  'An email has been sent to your account please verify',
-                  style: TextStyle(fontSize: 20),
-                  textAlign: TextAlign.center,
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'An email has been sent to your account please verify',
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                  icon: Icon(Icons.email, size: 32),
+                  label: const Text(
+                    'Resend Email',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  onPressed: canResend ? sendEmailVerification : null),
+              const SizedBox(height: 8),
+              TextButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    icon: Icon(Icons.email, size: 32),
-                    label: const Text(
-                      'Resend Email',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    onPressed: canResend ? sendEmailVerification : null
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontSize: 24),
                 ),
-                const SizedBox(height: 8),
-                TextButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    onPressed: () => FirebaseAuth.instance.signOut(),
-                )
-              ],
-            ),
-          )
-        );
+                onPressed: () => FirebaseAuth.instance.signOut(),
+              )
+            ],
+          ),
+        ));
 }

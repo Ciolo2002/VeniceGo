@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
-import 'package:venice_go/pages/BookMarked.dart';
 import 'package:venice_go/pages/travel_page.dart';
 import '../auth.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -377,8 +376,8 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   Future<void> _launchCall(String num) async {
-    final Uri _url = Uri.parse('tel:$num');
-    if (!await launchUrl(_url)) {
+    final Uri url = Uri.parse('tel:$num');
+    if (!await launchUrl(url)) {
       throw Exception('Could not call $num');
     }
   }
@@ -409,10 +408,10 @@ class _DetailsPageState extends State<DetailsPage> {
     }
   }
 
-  Future<void> _launchUrl(String url) async {
-    final Uri _url = Uri.parse(url);
-    if (!await launchUrl(_url)) {
-      throw Exception('Could not launch $_url');
+  Future<void> _launchUrl(String urlstr) async {
+    final Uri url = Uri.parse(urlstr);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
     }
   }
 

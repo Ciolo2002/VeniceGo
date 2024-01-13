@@ -18,10 +18,10 @@ class TravelPage extends StatefulWidget {
 
 class _TravelPageState extends State<TravelPage> {
   late GoogleMapController _mapsController;
-  List<LatLng> _polylineCoordinates = <LatLng>[];
-  List<LatLng> _locations = <LatLng>[];
-  LatLng _currentUserPosition = LatLng(0, 0);
-  Set<Marker> _markers = {};
+  final List<LatLng> _polylineCoordinates = <LatLng>[];
+  final List<LatLng> _locations = <LatLng>[];
+  late LatLng _currentUserPosition = LatLng(0, 0);
+  final Set<Marker> _markers = {};
   late StreamSubscription<Position> _positionStreamSubscription;
 
   @override
@@ -48,17 +48,17 @@ class _TravelPageState extends State<TravelPage> {
         CameraPosition(target: _currentUserPosition, zoom: 17.5)));
     _getPlacesfromPlaceID(widget.destinationsID);
   }
-  
 
   void _updateCurrentPosition(Position pos) {
-    _markers.removeWhere((element) => element.markerId.value == "current_position");
+    _markers
+        .removeWhere((element) => element.markerId.value == "current_position");
     _markers.add(Marker(
-      markerId: const MarkerId("current_position"),
-      position: LatLng(pos.latitude, pos.longitude),
-      icon: BitmapDescriptor.defaultMarkerWithHue(
-          BitmapDescriptor.hueOrange)));
-      
+        markerId: const MarkerId("current_position"),
+        position: LatLng(pos.latitude, pos.longitude),
+        icon:
+            BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange)));
   }
+
   /// Removes the old current position marker and adds the new one
   /// to the [_markers] set.
   void _getCurrentPosition() {
@@ -68,7 +68,7 @@ class _TravelPageState extends State<TravelPage> {
     _positionStreamSubscription =
         Geolocator.getPositionStream().listen((position) {
       setState(() {
-      _updateCurrentPosition(position);
+        _updateCurrentPosition(position);
       });
     });
     // Updates the camera position to the new current position
@@ -99,7 +99,7 @@ class _TravelPageState extends State<TravelPage> {
     // and then parse the resulting json.
     List<Future> futures = destinationsID.map((destination) {
       String url =
-          "https://places.googleapis.com/v1/places/${destination}?fields=name,id,formattedAddress,location,displayName&key=${apiKey}";
+          "https://places.googleapis.com/v1/places/$destination?fields=name,id,formattedAddress,location,displayName&key=$apiKey";
       return http.get(Uri.parse(url)).then((response) {
         if (response.statusCode != 200) {
           throw Exception(
@@ -160,11 +160,11 @@ class _TravelPageState extends State<TravelPage> {
       PolylinePoints polylinePoints = PolylinePoints();
       List<PointLatLng> res =
           polylinePoints.decodePolyline(polylineJSON.encodedPolyline);
-      res.forEach((point) {
+      for (var point in res) {
         setState(() {
           _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
         });
-      });
+      }
     });
   }
 

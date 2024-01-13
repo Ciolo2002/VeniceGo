@@ -13,9 +13,7 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-
 class _LoginPageState extends State<LoginPage> {
-
   String? errorMessage = '';
   bool isLogin = true;
   bool isPasswordVisible = false;
@@ -104,9 +102,10 @@ class _LoginPageState extends State<LoginPage> {
         return false; // Interrompi la funzione se uno dei campi richiesti è vuoto
       }
 
-      if(!isChecked) {
-        setState((){
-          errorMessage = _formatExceptionMessage("You must accept the Terms and Conditions");
+      if (!isChecked) {
+        setState(() {
+          errorMessage = _formatExceptionMessage(
+              "You must accept the Terms and Conditions");
         });
         return false;
       }
@@ -187,37 +186,36 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // titolo della pagina
-  Widget _title() {
-    return isLogin ? const Text('Login') : const Text('Registrazione');
-  }
+  //Widget _title() {
+  //  return isLogin ? const Text('Login') : const Text('Registrazione');
+  //}
 
   Widget _checkbox() {
     return Center(
         child: Column(
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                MyCheckbox(),
-                const Text("I agree to the "),
-                GestureDetector(
-                  child: const Text(
-                    "Terms and Conditions",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => TermsAndConditionsPage(),
-                    ),
-                  ),
+            MyCheckbox(),
+            const Text("I agree to the "),
+            GestureDetector(
+              child: const Text(
+                "Terms and Conditions",
+                style: TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
                 ),
-              ],
+              ),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TermsAndConditionsPage(),
+                ),
+              ),
             ),
           ],
-        )
-    );
+        ),
+      ],
+    ));
   }
 
   // in base alla booleana isLogin carica il login o la registrazione
@@ -307,7 +305,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
 
 bool isChecked = false;
 
