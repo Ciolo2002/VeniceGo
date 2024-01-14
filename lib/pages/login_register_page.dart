@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     // check per la conferma della password
     if (_controllerPassword.text != _controllerPasswordConfirm.text) {
-       setState(() {
+       return setState(() {
         errorMessage = "Password does not match";
       });
     }
