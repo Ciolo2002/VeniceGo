@@ -63,6 +63,57 @@ class _BookMarkedPageState extends State<BookMarked> {
       ),
     );
   }
+  void __clickBUtton(key){
+    RenderBox renderbox =
+    key.currentContext!.findRenderObject() as RenderBox;
+    Offset position = renderbox.localToGlobal(Offset.zero);
+    double x = position.dx;
+    double y = position.dy;
+    GestureBinding.instance.handlePointerEvent(
+        PointerDownEvent(position: Offset(x, y)));
+    Future.delayed(Duration(milliseconds: 300));
+    GestureBinding.instance.handlePointerEvent(PointerUpEvent(
+      position: Offset(x, y),
+    ));
+  }
+
+
+  Widget _firstBookMark() {
+    return Container(
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(child: SizedBox(height: 8)),
+          Text(
+            "It looks like you haven't bookmarked anything yet...",
+            style: TextStyle(
+              fontSize: 16,
+            ),
+          ),
+          Text(
+            "Add your favorites here!",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                __clickBUtton(homeButtonKey);
+              },
+              child: const Text(
+                "Search now",
+                style: TextStyle(fontSize: 16),
+              )),
+          Expanded(child: SizedBox(height: 4)),
+
+        ],
+      ),
+    );
+  }
+
+
 
   Widget _loginWidget() {
     return Container(
@@ -78,17 +129,7 @@ class _BookMarkedPageState extends State<BookMarked> {
           const SizedBox(height: 24),
           ElevatedButton(
               onPressed: () async {
-                RenderBox renderbox =
-                    myButtonKey.currentContext!.findRenderObject() as RenderBox;
-                Offset position = renderbox.localToGlobal(Offset.zero);
-                double x = position.dx;
-                double y = position.dy;
-                GestureBinding.instance.handlePointerEvent(
-                    PointerDownEvent(position: Offset(x, y)));
-                Future.delayed(Duration(milliseconds: 300));
-                GestureBinding.instance.handlePointerEvent(PointerUpEvent(
-                  position: Offset(x, y),
-                ));
+                __clickBUtton(accountButtonKey);
               },
               child: const Text(
                 "Login now",
@@ -155,29 +196,7 @@ class _BookMarkedPageState extends State<BookMarked> {
                               ));
                         },
                       )
-                    : Container(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(child: SizedBox(height: 8)),
-                            Text(
-                              "It looks like you haven't bookmarked anything yet...",
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            Text(
-                              "Add your favorites here!",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                            Expanded(child: SizedBox(height: 8)),
-                          ],
-                        ),
-                      ),
+                    :  _firstBookMark()
               ),
       ),
     );

@@ -16,7 +16,8 @@ class MyNavigationBar extends StatefulWidget {
   State<MyNavigationBar> createState() => _MyNavigationBarState();
 }
 
-final myButtonKey = GlobalKey();
+final accountButtonKey = GlobalKey();
+final homeButtonKey = GlobalKey();
 
 class _MyNavigationBarState extends State<MyNavigationBar> {
   //late int _selectedIndex;
@@ -37,6 +38,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
         animationDuration: const Duration(milliseconds: 1500),
         destinations: [
           NavigationDestination(
+            key: homeButtonKey,
             icon: Icon(Icons.home),
             selectedIcon: Icon(Icons.home),
             label: 'Dashboard',
@@ -47,7 +49,7 @@ class _MyNavigationBarState extends State<MyNavigationBar> {
             label: 'Saved',
           ),
           NavigationDestination(
-            key: myButtonKey,
+            key: accountButtonKey,
             icon: Icon(Icons.account_circle),
             selectedIcon: Icon(Icons.account_circle),
             label: 'Account',
