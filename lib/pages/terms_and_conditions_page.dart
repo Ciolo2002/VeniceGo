@@ -10,7 +10,7 @@ class _TermsAndConditionsPageState extends State<TermsAndConditionsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reset password'),
+        title: const Text('Terms & Conditions'),
       ),
       body: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
