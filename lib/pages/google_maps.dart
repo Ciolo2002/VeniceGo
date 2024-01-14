@@ -138,6 +138,7 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
     setState(() {
       getMarkers(userInput);
       _showListView = false;
+      _userInput= userInput;
     });
   }
 
