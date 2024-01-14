@@ -65,8 +65,14 @@ class _LoginPageState extends State<LoginPage> {
     }
     // check per la conferma della password
     if (_controllerPassword.text != _controllerPasswordConfirm.text) {
-      return setState(() {
+       setState(() {
         errorMessage = "Password does not match";
+      });
+    }
+    if (!isChecked) {
+      return setState(() {
+        errorMessage = _formatExceptionMessage(
+            "You must accept the Terms and Conditions");
       });
     }
 
@@ -100,14 +106,6 @@ class _LoginPageState extends State<LoginPage> {
     for (final fieldName in requiredF.keys) {
       if (!_hasValue(fieldName, requiredF[fieldName]!)) {
         return false; // Interrompi la funzione se uno dei campi richiesti è vuoto
-      }
-
-      if (!isChecked) {
-        setState(() {
-          errorMessage = _formatExceptionMessage(
-              "You must accept the Terms and Conditions");
-        });
-        return false;
       }
     }
     return true;
