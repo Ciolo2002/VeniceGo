@@ -252,60 +252,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // vecchia implementazione del pop up per la delete dell'account
-  /*showAlertDialog(BuildContext context) {
 
-    // set up the buttons
-    Widget cancelButton = TextButton(
-      onPressed: () {
-        Navigator.of(context).pop();
-      },
-      child: const Text("Cancel"),
-    );
-    Widget continueButton = TextButton(
-      onPressed: () async {
-        _deleteAccountRealtimeDatabase();
-
-        try {
-          await FirebaseAuth.instance.currentUser!.delete();
-        } on FirebaseAuthException catch (e) {
-          print(e.code);
-
-          if (e.code == "requires-recent-login") {
-            await _reauthenticateAndDelete();
-          } else {
-            rethrow;
-          }
-        } catch (e) {
-          rethrow;
-        }
-
-        await Auth().signOut();
-
-        // chiudo il pop up solo se ha finito di cancellare l'account
-        if (!context.mounted) return;
-        Navigator.of(context).pop();
-      },
-      child: const Text("Delete Account", style: TextStyle(color: Colors.red)),
-    );
-
-     AlertDialog alert = AlertDialog(
-      title: const Text("Attention!"),
-      content: const Text(
-          "Deleting your account will delete all your data. Are you sure you want to continue?"),
-      actions: [
-        cancelButton,
-        continueButton,
-      ],
-    );
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
-  }*/
 
   Widget _circleAvatar() {
     if (pickedFile != null) {

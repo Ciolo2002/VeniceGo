@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
@@ -366,19 +367,19 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   void showLoginDialog(BuildContext context) {
-    showDialog(
+    showPlatformDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return BasicDialogAlert(
           title: Text('Login Required'),
-          content: Text('You need to log in to bookmark this place.'),
+          content: Text('You need to login to bookmark this place.'),
           actions: [
-            TextButton(
+            BasicDialogAction(
               onPressed: () {
                 // Chiudi il popup
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              title: Text('OK'),
             ),
           ],
         );
