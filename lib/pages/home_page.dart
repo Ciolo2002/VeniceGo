@@ -107,7 +107,8 @@ class _HomePageState extends State<HomePage> {
             style: TextButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Delete Account', style: TextStyle(fontSize: 16)),
+            child: const Text('Delete Account',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           )
         ]);
   }

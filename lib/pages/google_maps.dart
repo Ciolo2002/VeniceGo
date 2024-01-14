@@ -165,51 +165,53 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
         body: Column(
           children: [
             Container(
-                color: Colors.blue[50],
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: TextField(
-                          controller: _controllerUserInput,
-                          onSubmitted: (input) {
-                            getMarkers(input);
-                            setState(() {
-                              _showListView = true;
-                              _userInput = input;
-                            });
-                          },
-                          decoration: const InputDecoration(
-                              labelText: 'Search for a location',
-                              border: InputBorder.none),
-                        ),
+              color: Colors.blue[50],
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: TextField(
+                        controller: _controllerUserInput,
+                        onSubmitted: (input) {
+                          getMarkers(input);
+                          setState(() {
+                            _showListView = true;
+                            _userInput = input;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                            labelText: 'Search for a location',
+                            border: InputBorder.none),
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (!_showListView) {
-                            getMarkers(_userInput);
-                          }
-                          _showListView = !_showListView;
-                        });
-                      },
-                      icon: Icon(_showListView ? Icons.remove : Icons.search),
-                    ),
-                  ],
-                )),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        if (!_showListView) {
+                          getMarkers(_userInput);
+                        }
+                        _showListView = !_showListView;
+                      });
+                    },
+                    icon: Icon(_showListView ? Icons.remove : Icons.search),
+                  ),
+                ],
+              ),
+            ),
             Container(
-                color: Colors.blue[200],
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _makeQuickSearchButton("Museum", Icons.museum),
-                    _makeQuickSearchButton("Night Club", Icons.celebration),
-                    _makeQuickSearchButton("Park", Icons.park),
-                    _makeQuickSearchButton("Supermarket", Icons.shopping_cart),
-                  ],
-                )),
+              color: Colors.blue[200],
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _makeQuickSearchButton("Museum", Icons.museum),
+                  _makeQuickSearchButton("Night Club", Icons.celebration),
+                  _makeQuickSearchButton("Park", Icons.park),
+                  _makeQuickSearchButton("Supermarket", Icons.shopping_cart),
+                ],
+              ),
+            ),
             if (_showListView)
               Expanded(
                 child: ListView.builder(
@@ -222,11 +224,14 @@ class _MyGoogleMapsState extends State<GoogleMaps> {
                       onTap: () {
                         _showListView = false;
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DetailsPage(
-                                    placeID: _suggestions[index].id,
-                                    refreshCallback: () => {})));
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailsPage(
+                              placeID: _suggestions[index].id,
+                              refreshCallback: () => {},
+                            ),
+                          ),
+                        );
                       },
                     );
                   },

@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:venice_go/json_utility.dart' show PlaceDetails, Review;
 import 'package:venice_go/pages/travel_page.dart';
+import 'package:venice_go/pages/BookMarked.dart';
 import '../auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -169,6 +170,7 @@ class _DetailsPageState extends State<DetailsPage> {
   Widget _imageGallery() {
     return Card(
       elevation: 4.0,
+      color: Colors.blue[200],
       child: SizedBox(
         height: 200,
         child: ListView.builder(
@@ -201,19 +203,28 @@ class _DetailsPageState extends State<DetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: Text(
-                  'Reviews',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Reviews',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Expanded(child: SizedBox(width: 24)),
+                      Container(
+                        alignment: Alignment.centerRight,
+                        child: _buildRating(),
+                      ),
+                    ],
+                  )),
               _buildReviewCard(details.reviews[0]),
               if (details.reviews.length > 1)
                 ExpansionTile(
+                  controlAffinity: ListTileControlAffinity.leading,
                   title: const Text(
                     'Show more reviews',
                     style: TextStyle(
@@ -339,18 +350,18 @@ class _DetailsPageState extends State<DetailsPage> {
         children: [
           Text(
             details.rating != 0.0 ? details.rating.toString() : 'Rating N/A',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(width: 4),
           Icon(
             Icons.star,
             color: Colors.yellow,
-            size: 22,
+            size: 24,
           ),
         ],
       );
     } else {
-      return Container();
+      return SizedBox.shrink();
     }
   }
 
@@ -404,7 +415,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
       );
     } else {
-      return Container();
+      return SizedBox.shrink();
     }
   }
 
@@ -443,7 +454,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ),
       );
     } else {
-      return Container();
+      return SizedBox.shrink();
     }
   }
 
@@ -468,7 +479,7 @@ class _DetailsPageState extends State<DetailsPage> {
         ],
       );
     } else {
-      return Container();
+      return SizedBox.shrink();
     }
   }
 
@@ -574,7 +585,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       const SizedBox(height: 24.0),
                       imageUrl.isNotEmpty
                           ? _imageGallery()
-                          : const CircularProgressIndicator(),
+                          : BookMarked.progressIndicator(32),
                       const SizedBox(height: 24.0),
                       _buildEditorialSummary(),
                       Padding(
@@ -582,7 +593,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         padding: EdgeInsets.symmetric(horizontal: 12),
                         child: Row(children: [
                           Expanded(child: _buildPhoneNumber()),
-                          _buildRating(),
+                          //_buildRating(),
                         ]),
                       ),
                       Padding(
@@ -597,7 +608,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   ),
                 ),
               )
-            : const Center(child: CircularProgressIndicator()),
+            : BookMarked.progressIndicator(32),
       ),
       floatingActionButton: FloatingActionButton(
         shape: CircleBorder(

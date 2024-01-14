@@ -62,7 +62,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        color: Colors.blue[200],
+        padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Padding(
