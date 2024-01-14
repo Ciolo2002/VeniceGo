@@ -200,31 +200,29 @@ class _LoginPageState extends State<LoginPage> {
   //}
 
   Widget _checkbox() {
-    return Center(
-        child: Column(
-      children: [
-        Row(
-          children: [
-            MyCheckbox(),
-            const Text("I agree to the "),
-            GestureDetector(
-              child: const Text(
-                "Terms and Conditions",
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => TermsAndConditionsPage(),
-                ),
+    return Container(
+      alignment: Alignment.center,
+      child: Row(
+        children: [
+          MyCheckbox(),
+          const Text("I agree to the "),
+          GestureDetector(
+            child: const Text(
+              "Terms and Conditions",
+              style: TextStyle(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
               ),
             ),
-          ],
-        ),
-      ],
-    ));
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => TermsAndConditionsPage(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // in base alla booleana isLogin carica il login o la registrazione
@@ -260,7 +258,10 @@ class _LoginPageState extends State<LoginPage> {
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
                           errorMessage!,
-                          style: const TextStyle(color: Colors.red),
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     _submitButton(),
