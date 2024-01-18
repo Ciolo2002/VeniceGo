@@ -194,6 +194,7 @@ class _TravelPageState extends State<TravelPage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
             body: GoogleMap(
                 initialCameraPosition:
