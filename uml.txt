@@ -1,0 +1,451 @@
+@startuml
+set namespaceSeparator ::
+
+class "venice_go::auth.dart::Auth" {
+  -FirebaseAuth _firebaseAuth
+  +User? currentUser
+  +Stream<User?> authStateChanges
+  +dynamic signInWithEmailAndPassword()
+  +dynamic createUSerWithEmailAndPassword()
+  +dynamic signOut()
+}
+
+"venice_go::auth.dart::Auth" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"venice_go::auth.dart::Auth" o-- "firebase_auth::firebase_auth.dart::User"
+"venice_go::auth.dart::Auth" o-- "dart::async::Stream<User>"
+
+class "venice_go::navigation_bar.dart::MyNavigationBar" {
+  +int selectedIndex
+  +Color? backgroundColor
+  +void Function(int) onDestinationSelected
+  +State<MyNavigationBar> createState()
+}
+
+"venice_go::navigation_bar.dart::MyNavigationBar" o-- "dart::ui::Color"
+"venice_go::navigation_bar.dart::MyNavigationBar" o-- "null::void Function(int)"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::navigation_bar.dart::MyNavigationBar"
+
+class "venice_go::navigation_bar.dart::_MyNavigationBarState" {
+  +void initState()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::navigation_bar.dart::_MyNavigationBarState"
+
+class "venice_go::navigation_data::navigation_data.dart::NavigationData" {
+  -dynamic _download()
+  -dynamic _extractData()
+  +dynamic initNavigationData()
+}
+
+class "venice_go::permission_request.dart::PermissionRequest" {
+  {static} -dynamic _requestAndroid()
+  {static} -dynamic _requestIOS()
+  {static} +dynamic request()
+}
+
+class "venice_go::firebase_options.dart::DefaultFirebaseOptions" {
+  {static} +FirebaseOptions android
+  {static} +FirebaseOptions ios
+  {static} +FirebaseOptions currentPlatform
+}
+
+"venice_go::firebase_options.dart::DefaultFirebaseOptions" o-- "firebase_core_platform_interface::firebase_core_platform_interface.dart::FirebaseOptions"
+
+class "venice_go::main.dart::MyApp" {
+  +State<MyApp> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::main.dart::MyApp"
+
+class "venice_go::main.dart::_MyAppState" {
+  +int currentIndex
+  -PageController _pageController
+  +void initState()
+  +void dispose()
+  +Widget build()
+}
+
+"venice_go::main.dart::_MyAppState" o-- "flutter::src::widgets::page_view.dart::PageController"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::main.dart::_MyAppState"
+
+class "venice_go::locations.dart::LatLng" {
+  +double lat
+  +double lng
+  +Map<String, dynamic> toJson()
+}
+
+class "venice_go::locations.dart::Region" {
+  +LatLng coords
+  +String id
+  +String name
+  +double zoom
+  +Map<String, dynamic> toJson()
+}
+
+"venice_go::locations.dart::Region" o-- "venice_go::locations.dart::LatLng"
+
+class "venice_go::locations.dart::Office" {
+  +String address
+  +String id
+  +String image
+  +double lat
+  +double lng
+  +String name
+  +String phone
+  +String region
+  +Map<String, dynamic> toJson()
+}
+
+class "venice_go::locations.dart::Locations" {
+  +List<Office> offices
+  +List<Region> regions
+  +Map<String, dynamic> toJson()
+}
+
+class "venice_go::widget_tree.dart::WidgetTree" {
+  +State<WidgetTree> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::widget_tree.dart::WidgetTree"
+
+class "venice_go::widget_tree.dart::_WidgetTreeState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::widget_tree.dart::_WidgetTreeState"
+
+class "venice_go::pages::verify_email_page.dart::VerifyEmailPage" {
+  +State<VerifyEmailPage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::verify_email_page.dart::VerifyEmailPage"
+
+class "venice_go::pages::verify_email_page.dart::_VerifyEmailPageState" {
+  +bool isEmailVerified
+  +bool canResend
+  +Timer? timer
+  +void initState()
+  +void dispose()
+  +dynamic checkEmailVerified()
+  +dynamic sendEmailVerification()
+  +Widget build()
+}
+
+"venice_go::pages::verify_email_page.dart::_VerifyEmailPageState" o-- "dart::async::Timer"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::verify_email_page.dart::_VerifyEmailPageState"
+
+class "venice_go::pages::details_page.dart::DetailsPage" {
+  +String placeID
+  +void Function() refreshCallback
+  +State<DetailsPage> createState()
+}
+
+"venice_go::pages::details_page.dart::DetailsPage" o-- "dart::ui::void Function()"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::details_page.dart::DetailsPage"
+
+class "venice_go::pages::details_page.dart::_DetailsPageState" {
+  +String placeID
+  +dynamic details
+  +List<String> imageUrl
+  +bool isBookmarked
+  +void dispose()
+  +void initState()
+  +dynamic getPhotos()
+  +dynamic getDetails()
+  -void _showEnlargedImage()
+  -Widget _imageGallery()
+  -Widget _buildReviewsSection()
+  -Widget _buildReviewCard()
+  -Widget _buildOpeningHoursSection()
+  -Widget _buildRating()
+  +void showLoginDialog()
+  -dynamic _launchCall()
+  -Widget _buildPhoneNumber()
+  -dynamic _launchUrl()
+  -Widget _buildWebsiteUri()
+  -Widget _buildEditorialSummary()
+  -Widget _buildTitle()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::details_page.dart::_DetailsPageState"
+
+class "venice_go::pages::login_register_page.dart::LoginPage" {
+  +State<LoginPage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::login_register_page.dart::LoginPage"
+
+class "venice_go::pages::login_register_page.dart::_LoginPageState" {
+  +String? errorMessage
+  +bool isLogin
+  +bool isPasswordVisible
+  -TextEditingController _controllerName
+  -TextEditingController _controllerSurname
+  -TextEditingController _controllerEmail
+  -TextEditingController _controllerPassword
+  -TextEditingController _controllerPasswordConfirm
+  -dynamic _signInWithEmailAndPassword()
+  -dynamic _createUserWithEmailAndPassword()
+  -bool _checkMapRequired()
+  -bool _hasValue()
+  -String _formatExceptionMessage()
+  -Widget _entryField()
+  -Widget _submitButton()
+  -Widget _loginOrRegisterButton()
+  -Widget _checkbox()
+  +Widget build()
+  -Widget _buildRegister()
+  -Widget _buildSignIn()
+}
+
+"venice_go::pages::login_register_page.dart::_LoginPageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::login_register_page.dart::_LoginPageState"
+
+class "venice_go::pages::login_register_page.dart::MyCheckbox" {
+  +State<MyCheckbox> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::login_register_page.dart::MyCheckbox"
+
+class "venice_go::pages::login_register_page.dart::_MyCheckboxState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::login_register_page.dart::_MyCheckboxState"
+
+class "venice_go::pages::forgot_password_page.dart::ForgotPasswordPage" {
+  +State<ForgotPasswordPage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::forgot_password_page.dart::ForgotPasswordPage"
+
+class "venice_go::pages::forgot_password_page.dart::_ForgotPasswordPageState" {
+  -GlobalKey<FormState> _formKey
+  -TextEditingController _controllerEmail
+  +String? errorMessage
+  -dynamic _resetPassword()
+  -String _formatExceptionMessage()
+  -String? _validateEmail()
+  +Widget build()
+}
+
+"venice_go::pages::forgot_password_page.dart::_ForgotPasswordPageState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"venice_go::pages::forgot_password_page.dart::_ForgotPasswordPageState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::forgot_password_page.dart::_ForgotPasswordPageState"
+
+class "venice_go::pages::home_page.dart::HomePage" {
+  +State<HomePage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::home_page.dart::HomePage"
+
+class "venice_go::pages::home_page.dart::_HomePageState" {
+  -String _userName
+  -String _userSurname
+  -String _userPhoto
+  +User? user
+  +PlatformFile? pickedFile
+  +UploadTask? uploadTask
+  +void initState()
+  +void setState()
+  +dynamic fetchUserData()
+  +dynamic fetchProfileImage()
+  +dynamic signOut()
+  -Widget _signOutButton()
+  -Widget _deleteAccountButton()
+  -dynamic _reauthenticateAndDelete()
+  -dynamic _showPasswordInputDialog()
+  -dynamic _deleteAccountRealtimeDatabase()
+  -dynamic _showDeleteAccountAlertDialog()
+  -Widget _circleAvatar()
+  +dynamic selectFile()
+  +dynamic uploadFile()
+  +Widget buildProgress()
+  -Widget _profileImage()
+  -Widget _uploadSelectFileButton()
+  -Widget _userInfo()
+  +Widget build()
+}
+
+"venice_go::pages::home_page.dart::_HomePageState" o-- "firebase_auth::firebase_auth.dart::User"
+"venice_go::pages::home_page.dart::_HomePageState" o-- "file_picker::src::platform_file.dart::PlatformFile"
+"venice_go::pages::home_page.dart::_HomePageState" o-- "firebase_storage::firebase_storage.dart::UploadTask"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::home_page.dart::_HomePageState"
+
+class "venice_go::pages::location_search_screen.dart::LocationSearchScreen" {
+  +State<LocationSearchScreen> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::location_search_screen.dart::LocationSearchScreen"
+
+class "venice_go::pages::location_search_screen.dart::_LocationSearchScreenState" {
+  -List<Place> _suggestions
+  -String _filter
+  +LatLng veniceGeoCoords
+  -dynamic _setFilter()
+  -dynamic _getMarkers()
+  +dynamic getMarkers()
+  +Widget build()
+}
+
+"venice_go::pages::location_search_screen.dart::_LocationSearchScreenState" o-- "venice_go::locations.dart::LatLng"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::location_search_screen.dart::_LocationSearchScreenState"
+
+class "venice_go::pages::BookMarked.dart::BookMarked" {
+  +State<BookMarked> createState()
+  {static} +Widget progressIndicator()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::BookMarked.dart::BookMarked"
+
+class "venice_go::pages::BookMarked.dart::_BookMarkedPageState" {
+  +Map<String, dynamic> placesInfo
+  +void didChangeDependencies()
+  +void loadData()
+  +void navigateToDetailsPage()
+  -void __clickBUtton()
+  -Widget _firstBookMark()
+  -Widget _loginWidget()
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::BookMarked.dart::_BookMarkedPageState"
+
+class "venice_go::pages::terms_and_conditions_page.dart::TermsAndConditionsPage" {
+  +State<TermsAndConditionsPage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::terms_and_conditions_page.dart::TermsAndConditionsPage"
+
+class "venice_go::pages::terms_and_conditions_page.dart::_TermsAndConditionsPageState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::terms_and_conditions_page.dart::_TermsAndConditionsPageState"
+
+class "venice_go::pages::travel_page.dart::TravelPage" {
+  +List<String> destinationsID
+  +State<TravelPage> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::travel_page.dart::TravelPage"
+
+class "venice_go::pages::travel_page.dart::_TravelPageState" {
+  -GoogleMapController _mapsController
+  -List<LatLng> _polylineCoordinates
+  -List<LatLng> _locations
+  -LatLng _currentUserPosition
+  -Set<Marker> _markers
+  -StreamSubscription<Position> _positionStreamSubscription
+  +void initState()
+  -void _getStartingPosition()
+  -void _updateCurrentPosition()
+  -void _getCurrentPosition()
+  -void _getPlacesfromPlaceID()
+  -void _getPolylinePointsBetweenPlaces()
+  -void _getPolylinePoints()
+  +Widget build()
+  -void _onMapCreated()
+  +void dispose()
+}
+
+"venice_go::pages::travel_page.dart::_TravelPageState" o-- "google_maps_flutter::google_maps_flutter.dart::GoogleMapController"
+"venice_go::pages::travel_page.dart::_TravelPageState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"venice_go::pages::travel_page.dart::_TravelPageState" o-- "dart::async::StreamSubscription<Position>"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::travel_page.dart::_TravelPageState"
+
+class "venice_go::pages::google_maps.dart::GoogleMaps" {
+  +State<GoogleMaps> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "venice_go::pages::google_maps.dart::GoogleMaps"
+
+class "venice_go::pages::google_maps.dart::_MyGoogleMapsState" {
+  +GoogleMapController mapController
+  -List<Place> _suggestions
+  -bool _showListView
+  -LatLng _veniceGeoCoords
+  -Set<Marker> _markers
+  -String _userInput
+  -TextEditingController _controllerUserInput
+  -dynamic _getMarkers()
+  +dynamic getMarkers()
+  -void _buttonSearchPressed()
+  -Widget _makeQuickSearchButton()
+  +Widget build()
+  +void dispose()
+}
+
+"venice_go::pages::google_maps.dart::_MyGoogleMapsState" o-- "google_maps_flutter::google_maps_flutter.dart::GoogleMapController"
+"venice_go::pages::google_maps.dart::_MyGoogleMapsState" o-- "google_maps_flutter_platform_interface::src::types::location.dart::LatLng"
+"venice_go::pages::google_maps.dart::_MyGoogleMapsState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "venice_go::pages::google_maps.dart::_MyGoogleMapsState"
+
+class "venice_go::json_utility.dart::DisplayName" {
+  +String text
+  +String languageCode
+}
+
+class "venice_go::json_utility.dart::Place" {
+  +String name
+  +String id
+  +String formattedAddress
+  +DisplayName displayName
+  +LatLng location
+  {static} +Marker toMarker()
+}
+
+"venice_go::json_utility.dart::Place" o-- "venice_go::json_utility.dart::DisplayName"
+"venice_go::json_utility.dart::Place" o-- "venice_go::locations.dart::LatLng"
+
+class "venice_go::json_utility.dart::PlaceDetails" {
+  +String id
+  +DisplayName displayName
+  +List<Photo> photos
+  +String address
+  +List<Review> reviews
+  +OpeningHours openingHours
+  +double rating
+  +String nationalPhoneNumber
+  +String websiteUri
+  +String editorialSummary
+}
+
+"venice_go::json_utility.dart::PlaceDetails" o-- "venice_go::json_utility.dart::DisplayName"
+"venice_go::json_utility.dart::PlaceDetails" o-- "venice_go::json_utility.dart::OpeningHours"
+
+class "venice_go::json_utility.dart::Review" {
+  +String authorName
+  +int rating
+  +String text
+  +String publishTime
+}
+
+class "venice_go::json_utility.dart::Photo" {
+  +String name
+  +int widthPx
+  +int heightPx
+  +List<AuthorAttribution> authorAttributions
+}
+
+class "venice_go::json_utility.dart::AuthorAttribution" {
+  +String displayName
+  +String uri
+  +String photoUri
+}
+
+class "venice_go::json_utility.dart::OpeningHours" {
+  +List<String> weekdayDescriptions
+  +bool openNow
+}
+
+class "venice_go::json_utility.dart::Polyline" {
+  +int distanceMeters
+  +String encodedPolyline
+  +String duration
+}
+
+
+@enduml
