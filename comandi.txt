@@ -1,8 +1,0 @@
-I SEGUENTI COMANDI SONO NECESSARI PER CONFIGURARE FIREBASE E I SUOI PLUGIN
-
-flutter pub add firebase_auth
-flutter pub add firebase_core
-
-
-PER L'UPLOAD DEI FILE
-flutter pub add file_picker
